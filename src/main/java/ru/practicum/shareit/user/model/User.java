@@ -1,12 +1,12 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.model.User;
+
+import javax.validation.constraints.Email;
 
 /**
  * TODO Sprint add-controllers.
@@ -14,13 +14,10 @@ import ru.practicum.shareit.user.model.User;
 @Data
 @AllArgsConstructor
 @Builder
-public class Item {
+public class User {
     public static long idCounter = 1;
 
     private Long id;
     private String name;
-    private String description;
-    private boolean available;
-    private Long owner;
-    private ItemRequest request;
+    private String email;
 }
