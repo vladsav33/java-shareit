@@ -68,7 +68,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void deleteUser() {
+    void testDeleteUser() {
         long userId = 1;
 
         mockMvc.perform(delete("/users/" + userId).contentType("application/json"))
@@ -78,7 +78,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void createValidUser() {
+    void testCreateValidUser() {
         UserDto userDtoToCreate = UserDto.builder().name("name").email("user@user.com").build();
         User userToCreate = User.builder().id(1L).name("name").email("user@user.com").build();
         when(userService.createUser(userDtoToCreate)).thenReturn(userToCreate);
@@ -93,7 +93,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void createUserNoEmail() {
+    void testCreateUserNoEmail() {
         UserDto userDtoToCreate = UserDto.builder().name("name").build();
         when(userService.createUser(userDtoToCreate)).thenThrow(new ValidationException("No email"));
 
@@ -105,7 +105,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void createUserInvalidEmail() {
+    void testCreateUserInvalidEmail() {
         UserDto userDtoToCreate = UserDto.builder().name("name").email("email").build();
         when(userService.createUser(userDtoToCreate)).thenThrow(new ValidationException("Invalid email"));
 
@@ -117,7 +117,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void updateUser() {
+    void testUpdateUser() {
         long userId = 1;
 
         Map<String, Object> userDtoToUpdate = Map.of("name", "name");
@@ -132,32 +132,5 @@ class UserControllerTest {
 
         verify(userService).updateUser(userId, userDtoToUpdate);
         assertEquals(objectMapper.writeValueAsString(userToUpdate), response);
-    }
-
-    static class UserServiceTest {
-
-        @Test
-        void createUser() {
-        }
-
-        @Test
-        void updateUser() {
-        }
-
-        @Test
-        void deleteUser() {
-        }
-
-        @Test
-        void getUser() {
-        }
-
-        @Test
-        void getAllUsers() {
-        }
-
-        @Test
-        void checkUserExists() {
-        }
     }
 }

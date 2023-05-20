@@ -7,7 +7,6 @@ import ru.practicum.shareit.exceptions.DuplicateEmail;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserMapper;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +21,13 @@ public class UserServiceImpl implements UserService {
 
     public User createUser(UserDto userDto) {
         if (checkEmailExists(userDto.getEmail())) {
+            log.error("Email {} already exists", userDto.getEmail());
             throw new DuplicateEmail("Email already exists");
         }
         User user = userMapper.toUser(userDto);
         user.setId(User.idCounter++);
         users.put(user.getId(), user);
+        log.info("User {} was created", user);
         return user;
     }
 
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
                         case "email":
                             String email = (String) value;
                             if(!user.getEmail().equals(email) && checkEmailExists(email)) {
+                                log.error("Email {} already exists", user.getEmail());
                                 throw new DuplicateEmail("Email already exists");
                             }
                             user.setEmail((String) value);
@@ -49,18 +51,22 @@ public class UserServiceImpl implements UserService {
                 }
         );
         users.put(userId, user);
+        log.info("User {} was updated", user);
         return user;
     }
 
     public void deleteUser(long userId) {
         users.remove(userId);
+        log.info("User {} was deleted", userId);
     }
 
     public User getUser(long userId) {
+        log.info("User {} was retrieved", userId);
         return users.get(userId);
     }
 
     public List<User> getAllUsers() {
+        log.info("All users were retrieved");
         return new ArrayList<>(users.values());
     }
 

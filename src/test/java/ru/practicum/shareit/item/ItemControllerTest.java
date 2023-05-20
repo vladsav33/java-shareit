@@ -35,7 +35,7 @@ class ItemControllerTest {
 
     @Test
     @SneakyThrows
-    void createItem() {
+    void testCreateItem() {
         long itemId = 1;
         long userId = 1;
         Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
@@ -55,7 +55,7 @@ class ItemControllerTest {
 
     @Test
     @SneakyThrows
-    void getItemsByUser() {
+    void testGetItemsByUser() {
         long itemId = 1;
         long userId = 1;
         Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
@@ -72,7 +72,7 @@ class ItemControllerTest {
 
     @Test
     @SneakyThrows
-    void updateItem() {
+    void testUpdateItem() {
         long itemId = 1;
         long userId = 1;
         Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
@@ -91,7 +91,7 @@ class ItemControllerTest {
 
     @Test
     @SneakyThrows
-    void getItem() {
+    void testGetItem() {
         long itemId = 1;
         long userId = 1;
         Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
@@ -108,7 +108,7 @@ class ItemControllerTest {
 
     @Test
     @SneakyThrows
-    void searchItems() {
+    void testSearchItems() {
         long itemId = 1;
         long userId = 1;
         String text = "Дрель";
