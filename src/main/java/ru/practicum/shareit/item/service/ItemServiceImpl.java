@@ -50,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = items.get(itemId);
         changes.forEach(
                 (change, value) -> {
-                    switch(change) {
+                    switch (change) {
                         case "name":
                             item.setName((String) value);
                             break;

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
-
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ import java.util.Map;
 @RequestMapping(path = "/users")
 public class UserController {
     private UserService userService;
+
     @GetMapping("/{userId}")
     public User getUser(@PathVariable long userId) {
         return userService.getUser(userId);
@@ -52,6 +52,4 @@ public class UserController {
     public User updateUser(@PathVariable long userId, @RequestBody Map<String, Object> changes) {
         return userService.updateUser(userId, changes);
     }
-
-
 }

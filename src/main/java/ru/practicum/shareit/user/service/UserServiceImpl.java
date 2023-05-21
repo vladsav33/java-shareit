@@ -35,13 +35,13 @@ public class UserServiceImpl implements UserService {
         User user = users.get(userId);
         changes.forEach(
                 (change, value) -> {
-                    switch(change) {
+                    switch (change) {
                         case "name":
                             user.setName((String) value);
                             break;
                         case "email":
                             String email = (String) value;
-                            if(!user.getEmail().equals(email) && checkEmailExists(email)) {
+                            if (!user.getEmail().equals(email) && checkEmailExists(email)) {
                                 log.error("Email {} already exists", user.getEmail());
                                 throw new DuplicateEmail("Email already exists");
                             }
