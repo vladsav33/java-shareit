@@ -18,6 +18,8 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
     private final Map<Long, User> users = new HashMap<>();
     private UserMapper userMapper;
+    public long idCounter = 1;
+
 
     public User createUser(UserDto userDto) {
         if (checkEmailExists(userDto.getEmail())) {
@@ -25,7 +27,7 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateEmail("Email already exists");
         }
         User user = userMapper.toUser(userDto);
-        user.setId(User.idCounter++);
+        user.setId(idCounter++);
         users.put(user.getId(), user);
         log.info("User {} was created", user);
         return user;

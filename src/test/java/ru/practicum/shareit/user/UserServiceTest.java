@@ -4,9 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
-
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserServiceTest {
-    private UserService userService;
+    private UserServiceImpl userService;
     private UserDto userDto;
     private User user;
     private final long userId = 1L;
@@ -22,7 +20,7 @@ class UserServiceTest {
     @BeforeEach
     void initTest() {
         userService = new UserServiceImpl();
-        User.idCounter = 1;
+        userService.idCounter = 1;
         userDto = UserDto.builder().name("name").email("name@mail.com").build();
         user = User.builder().id(userId).name("name").email("name@mail.com").build();
     }

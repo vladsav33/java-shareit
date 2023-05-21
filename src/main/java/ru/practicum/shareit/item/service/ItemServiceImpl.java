@@ -23,6 +23,7 @@ public class ItemServiceImpl implements ItemService {
     private final Map<Long, Item> items = new HashMap<>();
     private final ItemMapper itemMapper;
     private final UserService userService;
+    public long idCounter = 1;
 
     public Item createItem(long userId, ItemDto itemDto) {
         if (!userService.checkUserExists(userId)) {
@@ -31,7 +32,7 @@ public class ItemServiceImpl implements ItemService {
         }
         Item item = itemMapper.toItem(itemDto);
         item.setOwner(userId);
-        item.setId(Item.idCounter++);
+        item.setId(idCounter++);
         items.put(item.getId(), item);
         log.info("Item {} was created", item);
         return item;

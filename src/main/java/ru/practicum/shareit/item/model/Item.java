@@ -12,8 +12,6 @@ import ru.practicum.shareit.request.ItemRequest;
 @AllArgsConstructor
 @Builder
 public class Item {
-    public static long idCounter = 1;
-
     private Long id;
     private String name;
     private String description;

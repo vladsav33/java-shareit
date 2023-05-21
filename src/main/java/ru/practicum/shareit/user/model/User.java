@@ -11,9 +11,9 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class User {
-    public static long idCounter = 1;
-
     private Long id;
     private String name;
     private String email;
 }
+
+
