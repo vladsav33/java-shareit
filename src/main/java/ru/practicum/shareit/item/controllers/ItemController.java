@@ -19,9 +19,8 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
-/**
- * TODO Sprint add-controllers.
- */
+import static ru.practicum.shareit.variables.Variables.HEADER;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
@@ -31,29 +30,28 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Item createItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Valid ItemDto itemDto) {
-//        if ()
+    public ItemDto createItem(@RequestHeader(HEADER) long userId, @RequestBody @Valid ItemDto itemDto) {
         return itemService.createItem(userId, itemDto);
     }
 
     @GetMapping
-    public List<Item> getItemsByUser(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDto> getItemsByUser(@RequestHeader(HEADER) long userId) {
         return itemService.getItemsByUser(userId);
     }
 
     @PatchMapping("/{itemId}")
-    public Item updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId,
+    public ItemDto updateItem(@RequestHeader(HEADER) long userId, @PathVariable long itemId,
                            @RequestBody Map<String, Object> changes) {
         return itemService.updateItem(userId, itemId, changes);
     }
 
     @GetMapping("/{itemId}")
-    public Item getItem(@PathVariable long itemId) {
+    public ItemDto getItem(@PathVariable long itemId) {
         return itemService.getItemById(itemId);
     }
 
     @GetMapping("/search")
-    public List<Item> searchItems(@RequestParam String text) {
+    public List<ItemDto> searchItems(@RequestParam String text) {
         return itemService.searchItems(text);
     }
 }

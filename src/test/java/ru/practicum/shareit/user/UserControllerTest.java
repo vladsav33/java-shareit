@@ -10,11 +10,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -42,7 +40,7 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     void testGetAllUsers() {
-        User userToCreate = User.builder().id(1L).name("name").email("user@user.com").build();
+        UserDto userToCreate = UserDto.builder().id(1L).name("name").email("user@user.com").build();
         when(userService.getAllUsers()).thenReturn(List.of(userToCreate));
 
         String response = mockMvc.perform(get("/users").contentType("application/json"))
@@ -56,7 +54,7 @@ class UserControllerTest {
     @SneakyThrows
     void testGetUser() {
         long userId = 1;
-        User user = User.builder().build();
+        UserDto user = UserDto.builder().id(1L).name("name").email("user@user.com").build();
         user.setId(userId);
 
         when(userService.getUser(userId)).thenReturn(user);
@@ -79,8 +77,8 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     void testCreateValidUser() {
-        UserDto userDtoToCreate = UserDto.builder().name("name").email("user@user.com").build();
-        User userToCreate = User.builder().id(1L).name("name").email("user@user.com").build();
+        UserDto userDtoToCreate = UserDto.builder().id(1L).name("name").email("user@user.com").build();
+        UserDto userToCreate = UserDto.builder().id(1L).name("name").email("user@user.com").build();
         when(userService.createUser(userDtoToCreate)).thenReturn(userToCreate);
 
         String response = mockMvc.perform(post("/users").contentType("application/json")
@@ -94,7 +92,7 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     void testCreateUserNoEmail() {
-        UserDto userDtoToCreate = UserDto.builder().name("name").build();
+        UserDto userDtoToCreate = UserDto.builder().id(1L).name("name").email("").build();
         when(userService.createUser(userDtoToCreate)).thenThrow(new ValidationException("No email"));
 
         mockMvc.perform(post("/users").contentType("application/json")
@@ -106,7 +104,7 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     void testCreateUserInvalidEmail() {
-        UserDto userDtoToCreate = UserDto.builder().name("name").email("email").build();
+        UserDto userDtoToCreate = UserDto.builder().id(1L).name("name").email("email").build();
         when(userService.createUser(userDtoToCreate)).thenThrow(new ValidationException("Invalid email"));
 
         mockMvc.perform(post("/users").contentType("application/json")
@@ -121,7 +119,7 @@ class UserControllerTest {
         long userId = 1;
 
         Map<String, Object> userDtoToUpdate = Map.of("name", "name");
-        User userToUpdate = User.builder().id(1L).name("name").email("user@user.com").build();
+        UserDto userToUpdate = UserDto.builder().id(1L).name("name").email("user@user.com").build();
         when(userService.updateUser(userId, userDtoToUpdate)).thenReturn(userToUpdate);
 
         String response = mockMvc.perform(patch("/users/" + userId)

@@ -9,12 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +36,7 @@ class ItemControllerTest {
     void testCreateItem() {
         long itemId = 1;
         long userId = 1;
-        Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
+        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("name").description("description")
                 .available(true).owner(userId).build();
         ItemDto itemDtoToCreate = ItemDto.builder().name("name").description("description")
                 .available(true).build();
@@ -58,7 +56,7 @@ class ItemControllerTest {
     void testGetItemsByUser() {
         long itemId = 1;
         long userId = 1;
-        Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
+        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("name").description("description")
                 .available(true).owner(userId).build();
         when(itemService.getItemsByUser(1)).thenReturn(List.of(itemToCreate));
 
@@ -75,7 +73,7 @@ class ItemControllerTest {
     void testUpdateItem() {
         long itemId = 1;
         long userId = 1;
-        Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
+        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("name").description("description")
                 .available(true).owner(userId).build();
         Map<String, Object> itemDtoToCreate = Map.of("name", "name");
         when(itemService.updateItem(userId, itemId, itemDtoToCreate)).thenReturn(itemToCreate);
@@ -94,7 +92,7 @@ class ItemControllerTest {
     void testGetItem() {
         long itemId = 1;
         long userId = 1;
-        Item itemToCreate = Item.builder().id(itemId).name("name").description("description")
+        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("name").description("description")
                 .available(true).owner(userId).build();
         when(itemService.getItemById(1)).thenReturn(itemToCreate);
 
@@ -112,7 +110,7 @@ class ItemControllerTest {
         long itemId = 1;
         long userId = 1;
         String text = "Дрель";
-        Item itemToCreate = Item.builder().id(itemId).name("Дрель аккумуляторная").description("description")
+        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("Дрель аккумуляторная").description("description")
                 .available(true).owner(userId).build();
         when(itemService.searchItems(text)).thenReturn(List.of(itemToCreate));
 

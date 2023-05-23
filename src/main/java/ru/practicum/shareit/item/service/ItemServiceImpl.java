@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.NoSuchItem;
@@ -19,26 +21,28 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Getter
+@Setter
 public class ItemServiceImpl implements ItemService {
     private final Map<Long, Item> items = new HashMap<>();
-    private final ItemMapper itemMapper;
+    private final ItemMapper mapper = ItemMapper.INSTANCE;
     private final UserService userService;
-    public long idCounter = 1;
+    private long idCounter = 1;
 
-    public Item createItem(long userId, ItemDto itemDto) {
+    public ItemDto createItem(long userId, ItemDto itemDto) {
         if (!userService.checkUserExists(userId)) {
             log.error("User {} was not found", userId);
             throw new NoSuchUser("No such user");
         }
-        Item item = itemMapper.toItem(itemDto);
+        Item item = mapper.toItem(itemDto);
         item.setOwner(userId);
         item.setId(idCounter++);
         items.put(item.getId(), item);
         log.info("Item {} was created", item);
-        return item;
+        return mapper.toItemDto(item);
     }
 
-    public Item updateItem(long userId, long itemId, Map<String, Object> changes) {
+    public ItemDto updateItem(long userId, long itemId, Map<String, Object> changes) {
         if (items.get(itemId) == null) {
             log.error("Item {} was not found", itemId);
             throw new NoSuchItem("No such item");
@@ -66,22 +70,23 @@ public class ItemServiceImpl implements ItemService {
         );
         items.put(itemId, item);
         log.info("Item {} was updated", item);
-        return item;
+        return mapper.toItemDto(item);
     }
 
-    public Item getItemById(long itemId) {
+    public ItemDto getItemById(long itemId) {
         log.info("Item {} was retrieved", itemId);
-        return items.get(itemId);
+        return mapper.toItemDto(items.get(itemId));
     }
 
-    public List<Item> getItemsByUser(long userId) {
+    public List<ItemDto> getItemsByUser(long userId) {
         log.info("Items were retrieved for the user {}", userId);
         return items.values().stream()
-                .filter(item -> item.getOwner() != null && item.getOwner() == userId)
+                .filter(item -> item.getOwner() == userId)
+                .map(mapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    public List<Item> searchItems(String text) {
+    public List<ItemDto> searchItems(String text) {
         if (text.isBlank()) {
             log.info("Empty search string");
             return new ArrayList<>();
@@ -92,6 +97,7 @@ public class ItemServiceImpl implements ItemService {
                 .filter(item -> item.getDescription() != null && item.getDescription()
                 .toUpperCase()
                 .contains(text.toUpperCase()))
+                .map(mapper::toItemDto)
                 .collect(Collectors.toList());
     }
 }

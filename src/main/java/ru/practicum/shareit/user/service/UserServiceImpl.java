@@ -1,39 +1,43 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.DuplicateEmail;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserMapper;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Getter
+@Setter
 public class UserServiceImpl implements UserService {
     private final Map<Long, User> users = new HashMap<>();
-    private UserMapper userMapper;
-    public long idCounter = 1;
+    private final UserMapper mapper = UserMapper.INSTANCE;
+    private long idCounter = 1;
 
 
-    public User createUser(UserDto userDto) {
+    public UserDto createUser(UserDto userDto) {
         if (checkEmailExists(userDto.getEmail())) {
             log.error("Email {} already exists", userDto.getEmail());
             throw new DuplicateEmail("Email already exists");
         }
-        User user = userMapper.toUser(userDto);
+        User user = mapper.toUser(userDto);
         user.setId(idCounter++);
         users.put(user.getId(), user);
         log.info("User {} was created", user);
-        return user;
+        return mapper.toUserDto(user);
     }
 
-    public User updateUser(long userId, Map<String, Object> changes) {
+    public UserDto updateUser(long userId, Map<String, Object> changes) {
         User user = users.get(userId);
         changes.forEach(
                 (change, value) -> {
@@ -54,7 +58,7 @@ public class UserServiceImpl implements UserService {
         );
         users.put(userId, user);
         log.info("User {} was updated", user);
-        return user;
+        return mapper.toUserDto(user);
     }
 
     public void deleteUser(long userId) {
@@ -62,18 +66,18 @@ public class UserServiceImpl implements UserService {
         log.info("User {} was deleted", userId);
     }
 
-    public User getUser(long userId) {
+    public UserDto getUser(long userId) {
         log.info("User {} was retrieved", userId);
-        return users.get(userId);
+        return mapper.toUserDto(users.get(userId));
     }
 
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         log.info("All users were retrieved");
-        return new ArrayList<>(users.values());
+        return users.values().stream().map(mapper::toUserDto).collect(Collectors.toList());
     }
 
     private boolean checkEmailExists(String email) {
-        return users.values().stream().filter(user -> user.getEmail().equals(email)).count() != 0;
+        return users.values().stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
     public boolean checkUserExists(long userId) {
