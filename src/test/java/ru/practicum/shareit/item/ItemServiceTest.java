@@ -3,11 +3,12 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 import java.util.List;
-import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ItemServiceTest {
@@ -23,8 +24,8 @@ class ItemServiceTest {
         itemId = 1;
         userId = 1;
 
-        UserServiceImpl userService = new UserServiceImpl();
-        itemService = new ItemServiceImpl(userService);
+        UserServiceImpl userService = new UserServiceImpl(UserMapper.INSTANCE);
+        itemService = new ItemServiceImpl(ItemMapper.INSTANCE, userService);
         userService.setIdCounter(1);
         itemService.setIdCounter(1);
 
@@ -43,11 +44,11 @@ class ItemServiceTest {
 
     @Test
     void updateItem() {
-        Map<String, Object> itemToUpdate = Map.of("name", "name updated");
+        ItemDto itemUpdate = ItemDto.builder().name("name updated").build();
 
         ItemDto itemToCreate = itemService.createItem(userId, itemDto);
         itemToCreate.setName("name updated");
-        ItemDto itemActual = itemService.updateItem(userId, itemId, itemToUpdate);
+        ItemDto itemActual = itemService.updateItem(userId, itemId, itemUpdate);
         assertEquals(itemToCreate, itemActual);
     }
 

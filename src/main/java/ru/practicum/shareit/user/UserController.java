@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -45,7 +44,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable long userId, @RequestBody Map<String, Object> changes) {
-        return userService.updateUser(userId, changes);
+    public UserDto updateUser(@PathVariable long userId, @RequestBody UserDto userUpdate) {
+        return userService.updateUser(userId, userUpdate);
     }
 }

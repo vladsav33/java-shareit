@@ -12,7 +12,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,15 +74,15 @@ class ItemControllerTest {
         long userId = 1;
         ItemDto itemToCreate = ItemDto.builder().id(itemId).name("name").description("description")
                 .available(true).owner(userId).build();
-        Map<String, Object> itemDtoToCreate = Map.of("name", "name");
-        when(itemService.updateItem(userId, itemId, itemDtoToCreate)).thenReturn(itemToCreate);
+        ItemDto itemUpdate = ItemDto.builder().name("name").build();
+        when(itemService.updateItem(userId, itemId, itemUpdate)).thenReturn(itemToCreate);
 
         String response = mockMvc.perform(patch("/items/" + itemId).header("X-Sharer-User-Id", userId)
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemDtoToCreate)))
+                        .content(objectMapper.writeValueAsString(itemUpdate)))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        verify(itemService).updateItem(userId, itemId, itemDtoToCreate);
+        verify(itemService).updateItem(userId, itemId, itemUpdate);
         assertEquals(objectMapper.writeValueAsString(itemToCreate), response);
     }
 

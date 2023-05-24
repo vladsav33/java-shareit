@@ -2,12 +2,11 @@ package ru.practicum.shareit.user.service;
 
 import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
     UserDto createUser(UserDto userDto);
 
-    UserDto updateUser(long userId, Map<String, Object> changes);
+    UserDto updateUser(long userId, UserDto userUpdate);
 
     void deleteUser(long userId);
 

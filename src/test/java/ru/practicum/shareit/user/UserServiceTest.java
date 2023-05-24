@@ -3,9 +3,9 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 import java.util.List;
-import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,7 +17,7 @@ class UserServiceTest {
 
     @BeforeEach
     void initTest() {
-        userService = new UserServiceImpl();
+        userService = new UserServiceImpl(UserMapper.INSTANCE);
         userService.setIdCounter(1);
         userDto = UserDto.builder().name("name").email("name@mail.com").build();
         user = UserDto.builder().id(userId).name("name").email("name@mail.com").build();
@@ -31,11 +31,11 @@ class UserServiceTest {
 
     @Test
     void testUpdateUser() {
-        Map<String, Object> userDtoToUpdate = Map.of("name", "name updated");
+        UserDto userUpdate = UserDto.builder().name("name updated").build();
 
         user = userService.createUser(userDto);
         user.setName("name updated");
-        UserDto userActual = userService.updateUser(userId, userDtoToUpdate);
+        UserDto userActual = userService.updateUser(userId, userUpdate);
         assertEquals(user, userActual);
     }
 

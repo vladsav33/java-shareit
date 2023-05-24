@@ -12,7 +12,6 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 import java.util.List;
-import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -118,17 +117,17 @@ class UserControllerTest {
     void testUpdateUser() {
         long userId = 1;
 
-        Map<String, Object> userDtoToUpdate = Map.of("name", "name");
+        UserDto userUpdate = UserDto.builder().name("name").build();
         UserDto userToUpdate = UserDto.builder().id(1L).name("name").email("user@user.com").build();
-        when(userService.updateUser(userId, userDtoToUpdate)).thenReturn(userToUpdate);
+        when(userService.updateUser(userId, userUpdate)).thenReturn(userToUpdate);
 
         String response = mockMvc.perform(patch("/users/" + userId)
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDtoToUpdate)))
+                        .content(objectMapper.writeValueAsString(userUpdate)))
                         .andExpect(status().isOk())
                         .andReturn().getResponse().getContentAsString();
 
-        verify(userService).updateUser(userId, userDtoToUpdate);
+        verify(userService).updateUser(userId, userUpdate);
         assertEquals(objectMapper.writeValueAsString(userToUpdate), response);
     }
 }
