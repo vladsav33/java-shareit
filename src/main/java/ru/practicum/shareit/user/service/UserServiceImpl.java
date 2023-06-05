@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.DuplicateEmail;
+import ru.practicum.shareit.exceptions.NoSuchUser;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserMapper;
@@ -21,66 +23,53 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final Map<Long, User> users = new HashMap<>();
     private final UserMapper mapper;
-    private long idCounter = 1;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserMapper mapper) {
+    public UserServiceImpl(UserMapper mapper, UserRepository userRepository) {
         this.mapper = mapper;
+        this.userRepository = userRepository;
     }
 
     public UserDto createUser(UserDto userDto) {
-        if (checkEmailExists(userDto.getEmail())) {
-            log.error("Email {} already exists", userDto.getEmail());
-            throw new DuplicateEmail("Email already exists");
-        }
         User user = mapper.toUser(userDto);
-        user.setId(idCounter++);
-        users.put(user.getId(), user);
+        userRepository.save(user);
         log.info("User {} was created", user);
         return mapper.toUserDto(user);
     }
 
     public UserDto updateUser(long userId, UserDto userUpdate) {
-        User user = users.get(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchUser("User was not found"));
 
         if (userUpdate.getName() != null) {
             user.setName(userUpdate.getName());
         }
         if (userUpdate.getEmail() != null) {
-            if (checkEmailExists(userUpdate.getEmail()) && !user.getEmail().equals(userUpdate.getEmail())) {
-                log.error("Email {} already exists", userUpdate.getEmail());
-                throw new DuplicateEmail("Email already exists");
-            }
             user.setEmail(userUpdate.getEmail());
         }
-        users.put(userId, user);
+        userRepository.save(user);
         log.info("User {} was updated", user);
         return mapper.toUserDto(user);
     }
 
     public void deleteUser(long userId) {
-        users.remove(userId);
+        userRepository.deleteById(userId);
         log.info("User {} was deleted", userId);
     }
 
     public UserDto getUser(long userId) {
         log.info("User {} was retrieved", userId);
-        return mapper.toUserDto(users.get(userId));
+        return mapper.toUserDto(userRepository.findById(userId).orElseThrow(() -> new NoSuchUser("User was not found")));
     }
 
     public List<UserDto> getAllUsers() {
         log.info("All users were retrieved");
-        return users.values().stream()
+        return userRepository.findAll().stream()
                 .map(mapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
-    private boolean checkEmailExists(String email) {
-        return users.values().stream()
-                .anyMatch(user -> user.getEmail().equals(email));
-    }
-
     public boolean checkUserExists(long userId) {
-        return (users.get(userId) != null);
+        return userRepository.existsById(userId);
     }
 }

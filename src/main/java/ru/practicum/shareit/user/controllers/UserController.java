@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.controllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

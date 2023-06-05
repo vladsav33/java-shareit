@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.List;
-
 import static ru.practicum.shareit.variables.Variables.HEADER;
 
 @RestController
@@ -32,6 +32,12 @@ public class ItemController {
         return itemService.createItem(userId, itemDto);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestHeader(HEADER) long userId, @PathVariable long itemId,
+                                    @RequestBody @Valid CommentDto commentDto) {
+        return itemService.createComment(userId, itemId, commentDto);
+    }
+
     @GetMapping
     public List<ItemDto> getItemsByUser(@RequestHeader(HEADER) long userId) {
         return itemService.getItemsByUser(userId);
@@ -44,8 +50,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable long itemId) {
-        return itemService.getItemById(itemId);
+    public ItemDto getItem(@RequestHeader(HEADER) long userId, @PathVariable long itemId) {
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
