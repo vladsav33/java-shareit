@@ -23,6 +23,7 @@ import static ru.practicum.shareit.variables.Variables.HEADER;
 @AllArgsConstructor
 public class BookingController {
     public final BookingService bookingService;
+
     @PostMapping()
     public BookingDto createBooking(@RequestHeader(HEADER) long userId, @RequestBody BookingDto bookingDto) {
         return bookingService.createBooking(userId, bookingDto);
@@ -46,9 +47,8 @@ public class BookingController {
                                               @RequestParam(defaultValue = "ALL") String state) {
         State stateParam = null;
         try {
-                stateParam = State.valueOf(state);
-            }
-        catch (IllegalArgumentException exception) {
+            stateParam = State.valueOf(state);
+        } catch (IllegalArgumentException exception) {
             throw new UnknownState("UNSUPPORTED_STATUS");
         }
         return bookingService.getBookingsByUser(userId, stateParam);
@@ -61,8 +61,7 @@ public class BookingController {
         State stateParam;
         try {
             stateParam = State.valueOf(state);
-        }
-        catch (IllegalArgumentException exception) {
+        } catch (IllegalArgumentException exception) {
             throw new UnknownState("UNSUPPORTED_STATUS");
         }
         return bookingService.getBookingsByItemsOfUser(userId, stateParam);
