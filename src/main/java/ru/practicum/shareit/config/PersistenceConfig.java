@@ -18,7 +18,7 @@ import java.util.Properties;
 @Configuration
 @PropertySource(value = "classpath:application.properties")
 @EnableJpaRepositories(basePackages = "ru.practicum")
-@EnableTransactionManagement
+//@EnableTransactionManagement
 public class PersistenceConfig {
     private final Environment environment;
 

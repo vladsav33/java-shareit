@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.enums.State;
-import ru.practicum.shareit.exceptions.UnknownState;
 import java.util.List;
 import static ru.practicum.shareit.variables.Variables.HEADER;
 
@@ -45,25 +43,13 @@ public class BookingController {
     @ResponseBody
     public List<BookingDto> getBookingsByUser(@RequestHeader(HEADER) long userId,
                                               @RequestParam(defaultValue = "ALL") String state) {
-        State stateParam = null;
-        try {
-            stateParam = State.valueOf(state);
-        } catch (IllegalArgumentException exception) {
-            throw new UnknownState("UNSUPPORTED_STATUS");
-        }
-        return bookingService.getBookingsByUser(userId, stateParam);
+        return bookingService.getBookingsByUser(userId, state);
     }
 
     @GetMapping("/owner")
     @ResponseBody
     public List<BookingDto> getBookingsByItemsOfUser(@RequestHeader(HEADER) long userId,
                                                      @RequestParam(defaultValue = "ALL") String state) {
-        State stateParam;
-        try {
-            stateParam = State.valueOf(state);
-        } catch (IllegalArgumentException exception) {
-            throw new UnknownState("UNSUPPORTED_STATUS");
-        }
-        return bookingService.getBookingsByItemsOfUser(userId, stateParam);
+        return bookingService.getBookingsByItemsOfUser(userId, state);
     }
 }

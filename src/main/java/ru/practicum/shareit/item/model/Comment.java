@@ -3,7 +3,9 @@ package ru.practicum.shareit.item.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,8 +17,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
-@Data
 @AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor

@@ -58,7 +58,7 @@ class ItemServiceTest {
     void createItem() {
         when(itemRepository.save(ItemMapper.INSTANCE.toItem(itemDto))).thenReturn(ItemMapper.INSTANCE.toItem(itemDto));
         ItemDto itemToCreate = itemService.createItem(userId, itemDto);
-        assertEquals(item, ItemMapper.INSTANCE.toItem(itemToCreate));
+        assertEquals(ItemMapper.INSTANCE.toItemDto(item), itemToCreate);
     }
 
     @Test

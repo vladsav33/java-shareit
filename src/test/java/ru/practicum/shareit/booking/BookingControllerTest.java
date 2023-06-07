@@ -11,13 +11,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.enums.State;
 import ru.practicum.shareit.enums.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,35 +33,39 @@ class BookingControllerTest {
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
-    User user;
-    Item item;
-    long userId;
-    long itemId;
-    long bookingId;
+    private UserDto user;
+    private ItemDto item;
+    private long userId;
+    private long itemId;
+    private long bookingId;
+    BookingDto bookingToCreate;
 
     @BeforeEach
+    @SneakyThrows
     void initTest() {
         userId = 1;
         itemId = 1;
         bookingId = 1;
-        user = User.builder().id(userId).name("name").email("mail@email.com").build();
-        item = Item.builder().id(itemId).name("name").description("description").available(true).owner(userId).build();
+        user = UserDto.builder().id(userId).name("name").email("mail@email.com").build();
+        item = ItemDto.builder().id(itemId).name("name").description("description").available(true).owner(userId).build();
+        bookingToCreate = BookingDto.builder().id(bookingId)
+                .start(LocalDateTime.now().minusDays(1)).end(LocalDateTime.now().plusDays(1))
+                .item(item).booker(user).status(Status.APPROVED).build();
     }
 
     @Test
     @SneakyThrows
     void createBooking() {
-        BookingDto bookingToCreate = BookingDto.builder().id(bookingId)
-                .start(LocalDateTime.now().minusDays(1)).end(LocalDateTime.now().plusDays(1))
-                .item(item).booker(user).status(Status.APPROVED).build();
-        when(bookingService.createBooking(userId, bookingToCreate)).thenReturn(bookingToCreate);
+        when(bookingService.createBooking(userId,
+                objectMapper.readValue(objectMapper.writeValueAsString(bookingToCreate), BookingDto.class))).thenReturn(bookingToCreate);
 
         String response = mockMvc.perform(post("/bookings").header("X-Sharer-User-Id", userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        verify(bookingService).createBooking(userId, bookingToCreate);
+        verify(bookingService).createBooking(userId,
+                objectMapper.readValue(objectMapper.writeValueAsString(bookingToCreate), BookingDto.class));
         assertEquals(objectMapper.writeValueAsString(bookingToCreate), response);
     }
 
@@ -108,14 +110,14 @@ class BookingControllerTest {
         BookingDto bookingToCreate = BookingDto.builder().id(bookingId)
                 .start(LocalDateTime.now().minusDays(1)).end(LocalDateTime.now().plusDays(1))
                 .item(item).booker(user).status(Status.APPROVED).build();
-        when(bookingService.getBookingsByUser(userId, State.ALL)).thenReturn(List.of(bookingToCreate));
+        when(bookingService.getBookingsByUser(userId, "ALL")).thenReturn(List.of(bookingToCreate));
 
         String response = mockMvc.perform(get("/bookings").header("X-Sharer-User-Id", userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        verify(bookingService).getBookingsByUser(userId, State.ALL);
+        verify(bookingService).getBookingsByUser(userId, "ALL");
         assertEquals(objectMapper.writeValueAsString(List.of(bookingToCreate)), response);
     }
 
@@ -125,14 +127,14 @@ class BookingControllerTest {
         BookingDto bookingToCreate = BookingDto.builder().id(bookingId)
                 .start(LocalDateTime.now().minusDays(1)).end(LocalDateTime.now().plusDays(1))
                 .item(item).booker(user).status(Status.APPROVED).build();
-        when(bookingService.getBookingsByItemsOfUser(userId, State.ALL)).thenReturn(List.of(bookingToCreate));
+        when(bookingService.getBookingsByItemsOfUser(userId, "ALL")).thenReturn(List.of(bookingToCreate));
 
         String response = mockMvc.perform(get("/bookings/owner").header("X-Sharer-User-Id", userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        verify(bookingService).getBookingsByItemsOfUser(userId, State.ALL);
+        verify(bookingService).getBookingsByItemsOfUser(userId, "ALL");
         assertEquals(objectMapper.writeValueAsString(List.of(bookingToCreate)), response);
     }
 }

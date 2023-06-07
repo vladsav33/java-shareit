@@ -4,6 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.component.Chain;
+import ru.practicum.shareit.booking.component.GetBookingsAll;
+import ru.practicum.shareit.booking.component.GetBookingsCurrent;
+import ru.practicum.shareit.booking.component.GetBookingsFuture;
+import ru.practicum.shareit.booking.component.GetBookingsOwnerAll;
+import ru.practicum.shareit.booking.component.GetBookingsOwnerCurrent;
+import ru.practicum.shareit.booking.component.GetBookingsOwnerFuture;
+import ru.practicum.shareit.booking.component.GetBookingsOwnerPast;
+import ru.practicum.shareit.booking.component.GetBookingsOwnerRejected;
+import ru.practicum.shareit.booking.component.GetBookingsOwnerWaiting;
+import ru.practicum.shareit.booking.component.GetBookingsPast;
+import ru.practicum.shareit.booking.component.GetBookingsRejected;
+import ru.practicum.shareit.booking.component.GetBookingsWaiting;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
@@ -12,6 +25,9 @@ import ru.practicum.shareit.enums.Status;
 import ru.practicum.shareit.exceptions.AlreadyApproved;
 import ru.practicum.shareit.exceptions.NoItemAvailable;
 import ru.practicum.shareit.exceptions.NoSuchBooking;
+import ru.practicum.shareit.exceptions.NoSuchItem;
+import ru.practicum.shareit.exceptions.NoSuchUser;
+import ru.practicum.shareit.exceptions.UnknownState;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.exceptions.WrongUser;
 import ru.practicum.shareit.item.ItemRepository;
@@ -21,16 +37,15 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
-    private UserRepository userRepository;
-    private ItemRepository itemRepository;
-    private ItemService itemService;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final ItemService itemService;
 
     @Autowired
     public BookingServiceImpl(BookingMapper bookingMapper, BookingRepository bookingRepository,
@@ -53,8 +68,8 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Incorrect start or end dates");
         }
         Booking booking = bookingMapper.toBooking(bookingDto);
-        User booker = userRepository.findById(userId).get();
-        Item item = itemRepository.findById(bookingDto.getItemId()).get();
+        User booker = userRepository.findById(userId).orElseThrow(() -> new NoSuchUser("Booker was not found"));
+        Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() -> new NoSuchItem("No item to book"));
         if (booker.getId() == item.getOwner()) {
             throw new WrongUser("Cannot book items already owned by the booker");
         }
@@ -90,71 +105,41 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toBookingDto(booking);
     }
 
-    public List<BookingDto> getBookingsByUser(long userId, State state) {
-        List<BookingDto> bookings = null;
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(userId, Status.REJECTED).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case WAITING:
-                bookings = bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(userId, Status.WAITING).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case PAST:
-                bookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByEndDesc(userId,
-                                LocalDateTime.now(), LocalDateTime.now()).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-        }
+    public List<BookingDto> getBookingsByUser(long userId, String state) {
+        Chain chain = Chain.link(new GetBookingsAll(bookingRepository, bookingMapper),
+                   new GetBookingsRejected(bookingRepository, bookingMapper),
+                   new GetBookingsWaiting(bookingRepository, bookingMapper),
+                   new GetBookingsPast(bookingRepository, bookingMapper),
+                   new GetBookingsFuture(bookingRepository, bookingMapper),
+                   new GetBookingsCurrent(bookingRepository, bookingMapper));
+        List<BookingDto> bookings = chain.processRequest(userId, stringToState(state));
+
         if (bookings.isEmpty()) {
             throw new NoSuchBooking("Bookings were not found");
         }
         return bookings;
     }
 
-    public List<BookingDto> getBookingsByItemsOfUser(long userId, State state) {
-        List<BookingDto> bookings = null;
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findByItemOwnerOrderByStartDesc(userId).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findByItemOwnerAndStatusIsOrderByStartDesc(userId, Status.REJECTED).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case WAITING:
-                bookings = bookingRepository.findByItemOwnerAndStatusIsOrderByStartDesc(userId, Status.WAITING).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case PAST:
-                bookings = bookingRepository.findByItemOwnerAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findByItemOwnerAndStartAfterOrderByStartDesc(userId, LocalDateTime.now()).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findByItemOwnerAndStartBeforeAndEndAfterOrderByStartDesc(userId,
-                                LocalDateTime.now(), LocalDateTime.now()).stream()
-                        .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-        }
+    public List<BookingDto> getBookingsByItemsOfUser(long userId, String state) {
+        Chain chain = Chain.link(new GetBookingsOwnerAll(bookingRepository, bookingMapper),
+                new GetBookingsOwnerRejected(bookingRepository, bookingMapper),
+                new GetBookingsOwnerWaiting(bookingRepository, bookingMapper),
+                new GetBookingsOwnerPast(bookingRepository, bookingMapper),
+                new GetBookingsOwnerFuture(bookingRepository, bookingMapper),
+                new GetBookingsOwnerCurrent(bookingRepository, bookingMapper));
+        List<BookingDto> bookings = chain.processRequest(userId, stringToState(state));
+
         if (bookings.isEmpty()) {
             throw new NoSuchBooking("Bookings were not found");
         }
         return bookings;
+    }
+
+    private State stringToState(String state) {
+        try {
+            return State.valueOf(state);
+        } catch (IllegalArgumentException exception) {
+            throw new UnknownState("UNSUPPORTED_STATUS");
+        }
     }
 }
