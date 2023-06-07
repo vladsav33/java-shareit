@@ -15,7 +15,8 @@ public abstract class Chain {
     public final BookingMapper bookingMapper;
 
     public abstract List<BookingDto> processRequest(long userId, State state);
-    public static Chain link(Chain item1, Chain ... item2) {
+
+    public static Chain link(Chain item1, Chain... item2) {
         Chain head = item1;
         for (Chain item : item2) {
             head.next = item;

@@ -10,8 +10,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import java.time.LocalDateTime;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-
 @Data
 @Builder
 @NoArgsConstructor

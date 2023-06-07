@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GetBookingsPast extends Chain {
-    public GetBookingsPast (BookingRepository bookingRepository, BookingMapper bookingMapper) {
+    public GetBookingsPast(BookingRepository bookingRepository, BookingMapper bookingMapper) {
         super(bookingRepository, bookingMapper);
     }
 
