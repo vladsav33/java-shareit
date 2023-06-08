@@ -5,7 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.enums.State;
 import ru.practicum.shareit.enums.Status;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,14 +14,12 @@ public class GetBookingsRejected extends Chain {
         super(bookingRepository, bookingMapper);
     }
 
-    public List<BookingDto> processRequest(long userId, State state) {
-        if (state == State.REJECTED) {
-            return bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(userId, Status.REJECTED).stream()
-                    .map(bookingMapper::toBookingDto).collect(Collectors.toList());
-        }
-        if (next == null) {
-            return new ArrayList<>();
-        }
-        return next.processRequest(userId, state);
+    public List<BookingDto> findBookings(long userId) {
+        return bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(userId, Status.REJECTED).stream()
+                .map(bookingMapper::toBookingDto).collect(Collectors.toList());
+    }
+
+    public State getState() {
+        return State.REJECTED;
     }
 }

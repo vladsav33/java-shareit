@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -16,6 +17,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,9 +41,7 @@ class BookingServiceTest {
     private ItemDto itemDto;
     private Item item;
     private BookingDto bookingToCreate;
-
-    BookingServiceTest() {
-    }
+    private BookingMapper mapper = Mappers.getMapper(BookingMapper.class);
 
     @BeforeEach
     void initTest() {
@@ -56,8 +56,8 @@ class BookingServiceTest {
         item = Item.builder().id(itemId).name("name").description("description").owner(ownerId).available(true).build();
         bookingDto = BookingDto.builder().id(bookingId).start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
                 .booker(bookerDto).item(itemDto).status(Status.WAITING).build();
-        booking = BookingMapper.INSTANCE.toBooking(bookingDto);
-        bookingService = new BookingServiceImpl(BookingMapper.INSTANCE, bookingRepository, itemService, userRepository, itemRepository);
+        booking = mapper.toBooking(bookingDto);
+        bookingService = new BookingServiceImpl(mapper, bookingRepository, itemService, userRepository, itemRepository);
     }
 
     @Test
@@ -68,5 +68,56 @@ class BookingServiceTest {
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
         assertEquals(bookingToCreate, bookingDto);
+    }
+
+    @Test
+    void updateBooking() {
+        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(mapper.toBooking(bookingToCreate)));
+        BookingDto bookingToUpdate = bookingService.updateBooking(ownerId, bookingId, true);
+        bookingDto.setStatus(Status.APPROVED);
+        assertEquals(bookingToUpdate, bookingDto);
+    }
+
+    @Test
+    void getBookingById() {
+        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(mapper.toBooking(bookingToCreate)));
+        BookingDto bookingToGet = bookingService.getBookingById(bookerId, bookingId);
+        assertEquals(bookingToGet, bookingDto);
+    }
+
+    @Test
+    void getBookingsByUser() {
+        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
+        when(bookingRepository.findByBookerIdOrderByStartDesc(any(Long.class)))
+                .thenReturn(List.of(mapper.toBooking(bookingToCreate)));
+        List<BookingDto> bookingToGet = bookingService.getBookingsByUser(bookerId, "ALL");
+        assertEquals(bookingToGet, List.of(bookingDto));
+    }
+
+    @Test
+    void getBookingsByItemsOfUser() {
+        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
+        when(bookingRepository.findByItemOwnerOrderByStartDesc(any(Long.class)))
+                .thenReturn(List.of(mapper.toBooking(bookingToCreate)));
+        List<BookingDto> bookingToGet = bookingService.getBookingsByItemsOfUser(ownerId, "ALL");
+        assertEquals(bookingToGet, List.of(bookingDto));
     }
 }

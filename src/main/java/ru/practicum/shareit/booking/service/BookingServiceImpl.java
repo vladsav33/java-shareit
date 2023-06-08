@@ -83,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto updateBooking(long userId, long bookingId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NoSuchBooking("Booking was not found"));
         if (booking.getItem().getOwner() != userId) {
-            throw new WrongUser("User is not a booker for this booking");
+            throw new WrongUser("User is not an owner of this item for this booking");
         }
         if (approved && (booking.getStatus() == Status.APPROVED)) {
             throw new AlreadyApproved("This booking was already approved");
