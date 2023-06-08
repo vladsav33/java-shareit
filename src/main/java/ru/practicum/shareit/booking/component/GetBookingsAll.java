@@ -4,7 +4,6 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.enums.State;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +16,7 @@ public class GetBookingsAll extends Chain {
         return bookingRepository.findByBookerIdOrderByStartDesc(userId).stream()
                 .map(bookingMapper::toBookingDto).collect(Collectors.toList());
     }
+
     public State getState() {
         return State.ALL;
     }

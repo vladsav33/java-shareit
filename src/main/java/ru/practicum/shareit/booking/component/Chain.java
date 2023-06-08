@@ -15,7 +15,9 @@ public abstract class Chain {
     public final BookingMapper bookingMapper;
 
     public abstract State getState();
+
     public abstract List<BookingDto> findBookings(long userId);
+
     public List<BookingDto> processRequest(long userId, State state) {
         if (state == getState()) {
             return findBookings(userId);
