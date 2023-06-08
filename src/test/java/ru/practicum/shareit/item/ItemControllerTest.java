@@ -93,13 +93,13 @@ class ItemControllerTest {
         long userId = 1;
         ItemDto itemToCreate = ItemDto.builder().id(itemId).name("name").description("description")
                 .available(true).owner(userId).build();
-        when(itemService.getItemById(1)).thenReturn(itemToCreate);
+        when(itemService.getItemById(1, 1)).thenReturn(itemToCreate);
 
         String response = mockMvc.perform(get("/items/" + itemId).header("X-Sharer-User-Id", 1)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        verify(itemService).getItemById(itemId);
+        verify(itemService).getItemById(itemId, userId);
         assertEquals(objectMapper.writeValueAsString(itemToCreate), response);
     }
 
