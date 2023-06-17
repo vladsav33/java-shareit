@@ -58,7 +58,7 @@ public class ItemServiceIntegrationTest {
     @Test
     void testUpdateItem() {
         item.setName("Updated name");
-        itemToCreate = itemService.updateItem(userId, itemId, item);
+        itemToCreate = itemService.updateItem(userToCreate.getId(), itemToCreate.getId(), item);
 
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.id = :id", Item.class);
         Item itemToCheck = query.setParameter("id", itemId).getSingleResult();
