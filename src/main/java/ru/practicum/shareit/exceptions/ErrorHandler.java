@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.controllers.BookingController;
 import ru.practicum.shareit.item.controllers.ItemController;
+import ru.practicum.shareit.request.controllers.ItemRequestController;
 import ru.practicum.shareit.user.controllers.UserController;
+
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = {UserController.class, ItemController.class, BookingController.class})
+@RestControllerAdvice(assignableTypes = {UserController.class, ItemController.class,
+        BookingController.class, ItemRequestController.class})
 @Slf4j
 public class ErrorHandler {
     @ExceptionHandler(NoSuchUser.class)
@@ -25,6 +28,13 @@ public class ErrorHandler {
     public Map<String, String> handleNotFound(final NoSuchItem exception) {
         log.warn(exception.getMessage());
         return Map.of("Object not found", "No such item");
+    }
+
+    @ExceptionHandler(NoSuchRequest.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNorFound(final NoSuchRequest exception) {
+        log.warn((exception.getMessage()));
+        return Map.of("Object not found", "No such request");
     }
 
     @ExceptionHandler(NoSuchBooking.class)

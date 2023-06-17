@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserMapper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

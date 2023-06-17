@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,5 +33,5 @@ public class Item {
     @Column(name = "owner_id")
     private Long owner;
     @Column(name = "request_id")
-    private long request;
+    private long requestId;
 }

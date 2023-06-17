@@ -8,10 +8,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -120,5 +124,24 @@ class ItemControllerTest {
 
         verify(itemService).searchItems("Дрель");
         assertEquals(objectMapper.writeValueAsString(List.of(itemToCreate)), response);
+    }
+
+    @Test
+    @SneakyThrows
+    void testCreateComment() {
+        long itemId = 1;
+        long userId = 1;
+        CommentDto commentDtoToCreate = CommentDto.builder().id(1).authorId(userId).authorName("User 1").itemId(itemId)
+                        .text("Comment 1").created(LocalDateTime.now()).build();
+
+        when(itemService.createComment(userId, itemId, commentDtoToCreate)).thenReturn(commentDtoToCreate);
+
+        String response = mockMvc.perform(post("/items/" + itemId + "/comment").header("X-Sharer-User-Id", userId)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(commentDtoToCreate)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        verify(itemService).createComment(userId, itemId, commentDtoToCreate);
+        assertEquals(objectMapper.writeValueAsString(commentDtoToCreate), response);
     }
 }

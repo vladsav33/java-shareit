@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.controllers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +16,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
+
+import javax.validation.constraints.Min;
 import java.util.List;
+
 import static ru.practicum.shareit.variables.Variables.HEADER;
 
 @RestController
 @RequestMapping(path = "/bookings")
 @AllArgsConstructor
+@Validated
 public class BookingController {
     public final BookingService bookingService;
 
@@ -42,14 +49,20 @@ public class BookingController {
     @GetMapping()
     @ResponseBody
     public List<BookingDto> getBookingsByUser(@RequestHeader(HEADER) long userId,
-                                              @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getBookingsByUser(userId, state);
+                                              @RequestParam(defaultValue = "ALL") String state,
+                                              @RequestParam(defaultValue = "0")  @Min(0) int from,
+                                              @RequestParam (defaultValue = "20") @Min(1) int size) {
+        Pageable page = PageRequest.of(from / size, size);
+        return bookingService.getBookingsByUser(userId, state, page);
     }
 
     @GetMapping("/owner")
     @ResponseBody
     public List<BookingDto> getBookingsByItemsOfUser(@RequestHeader(HEADER) long userId,
-                                                     @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getBookingsByItemsOfUser(userId, state);
+                                                     @RequestParam(defaultValue = "ALL") String state,
+                                                     @RequestParam(defaultValue = "0")  @Min(0) int from,
+                                                     @RequestParam (defaultValue = "20") @Min(1) int size) {
+        Pageable page = PageRequest.of(from / size, size);
+        return bookingService.getBookingsByItemsOfUser(userId, state, page);
     }
 }

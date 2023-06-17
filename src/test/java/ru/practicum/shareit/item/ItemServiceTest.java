@@ -15,9 +15,11 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -31,13 +33,11 @@ class ItemServiceTest {
     private long userId;
     private UserDto userDto;
 
-    private UserRepository userRepository = Mockito.mock(UserRepository.class);
-    private ItemRepository itemRepository = Mockito.mock(ItemRepository.class);
-    private CommentRepository commentRepository = Mockito.mock(CommentRepository.class);
-    private BookingRepository bookingRepository = Mockito.mock(BookingRepository.class);
-
-    private UserService userService = Mockito.mock(UserService.class);
-    private CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
+    private final ItemRepository itemRepository = Mockito.mock(ItemRepository.class);
+    private final CommentRepository commentRepository = Mockito.mock(CommentRepository.class);
+    private final BookingRepository bookingRepository = Mockito.mock(BookingRepository.class);
+    private final CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
 
     @BeforeEach
     public void initTest() {

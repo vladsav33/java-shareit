@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.component.Chain;
@@ -35,6 +36,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -105,14 +107,14 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toBookingDto(booking);
     }
 
-    public List<BookingDto> getBookingsByUser(long userId, String state) {
+    public List<BookingDto> getBookingsByUser(long userId, String state, Pageable page) {
         Chain chain = Chain.link(new GetBookingsAll(bookingRepository, bookingMapper),
                    new GetBookingsRejected(bookingRepository, bookingMapper),
                    new GetBookingsWaiting(bookingRepository, bookingMapper),
                    new GetBookingsPast(bookingRepository, bookingMapper),
                    new GetBookingsFuture(bookingRepository, bookingMapper),
                    new GetBookingsCurrent(bookingRepository, bookingMapper));
-        List<BookingDto> bookings = chain.processRequest(userId, stringToState(state));
+        List<BookingDto> bookings = chain.processRequest(userId, stringToState(state), page);
 
         if (bookings.isEmpty()) {
             throw new NoSuchBooking("Bookings were not found");
@@ -120,14 +122,14 @@ public class BookingServiceImpl implements BookingService {
         return bookings;
     }
 
-    public List<BookingDto> getBookingsByItemsOfUser(long userId, String state) {
+    public List<BookingDto> getBookingsByItemsOfUser(long userId, String state, Pageable page) {
         Chain chain = Chain.link(new GetBookingsOwnerAll(bookingRepository, bookingMapper),
                 new GetBookingsOwnerRejected(bookingRepository, bookingMapper),
                 new GetBookingsOwnerWaiting(bookingRepository, bookingMapper),
                 new GetBookingsOwnerPast(bookingRepository, bookingMapper),
                 new GetBookingsOwnerFuture(bookingRepository, bookingMapper),
                 new GetBookingsOwnerCurrent(bookingRepository, bookingMapper));
-        List<BookingDto> bookings = chain.processRequest(userId, stringToState(state));
+        List<BookingDto> bookings = chain.processRequest(userId, stringToState(state), page);
 
         if (bookings.isEmpty()) {
             throw new NoSuchBooking("Bookings were not found");
