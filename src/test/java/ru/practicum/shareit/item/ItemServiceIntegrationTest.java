@@ -39,7 +39,7 @@ public class ItemServiceIntegrationTest {
         itemId = 1;
         user = UserDto.builder().name("name").email("name@mail.com").build();
         userToCreate = userService.createUser(user);
-        item = ItemDto.builder().name("name").description("description").available(true).owner(userId).build();
+        item = ItemDto.builder().name("name").description("description").available(true).owner(userToCreate.getId()).build();
         itemToCreate = itemService.createItem(userToCreate.getId(), item);
     }
 
