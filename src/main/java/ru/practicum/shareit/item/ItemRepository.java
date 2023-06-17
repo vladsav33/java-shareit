@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findAllByOwnerIsOrderById(Long userId);
+
     List<Item> findItemsByRequestIdIs(Long requestId);
 
     @Query(" select i from Item i " +

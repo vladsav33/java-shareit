@@ -27,13 +27,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public final ItemMapper itemMapper;
 
     public ItemRequestDto createRequest(long userId, ItemRequestDto itemRequestDto) {
-        if(!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new NoSuchUser("User was not found");
         }
-        if(itemRequestDto.getDescription() == null) {
+        if (itemRequestDto.getDescription() == null) {
             throw new ValidationException("Description is null");
         }
-        ItemRequest request= itemRequestMapper.toRequest(itemRequestDto);
+        ItemRequest request = itemRequestMapper.toRequest(itemRequestDto);
         itemRequestRepository.save(request);
         return itemRequestMapper.toRequestDto(request);
     }

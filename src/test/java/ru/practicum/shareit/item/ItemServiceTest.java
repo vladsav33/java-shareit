@@ -13,7 +13,6 @@ import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.util.ArrayList;
