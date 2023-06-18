@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import ru.practicum.shareit.exceptions.NoSuchUser;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.service.UserServiceImpl;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -72,6 +74,14 @@ class UserServiceTest {
         user = userService.createUser(userDto);
         UserDto userActual = userService.getUser(userId);
         assertEquals(user, userActual);
+    }
+
+    @Test
+    void getUserNotFound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(null));
+        assertThatThrownBy(() -> {
+            UserDto userActual = userService.getUser(userId);
+        }).isInstanceOf(NoSuchUser.class).hasMessage("User was not found");
     }
 
     @Test

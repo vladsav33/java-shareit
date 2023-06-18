@@ -6,6 +6,7 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.exceptions.NoSuchRequest;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -78,5 +80,13 @@ class ItemRequestServiceTest {
         ItemRequestDto requests = requestService.getRequestById(requestId, userId);
 
         assertEquals(requests, requestDto);
+    }
+
+    @Test
+    void getRequestByIdNotFound() {
+        when(requestRepository.findById(requestId)).thenReturn(Optional.ofNullable(null));
+        assertThatThrownBy(() -> {
+            ItemRequestDto requests = requestService.getRequestById(requestId, userId);
+        }).isInstanceOf(NoSuchRequest.class).hasMessage("This request was not found");
     }
 }

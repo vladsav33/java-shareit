@@ -46,6 +46,18 @@ public class UserServiceIntegrationTest {
         assertThat(userToCheck.getEmail(), equalTo(userToCreate.getEmail()));
     }
 
+/*    @Test
+//    @Rollback(false)
+    void testCreateUserNonUniqueEmail() {
+        UserDto user1 = UserDto.builder().name("name").email("name@mail.com").build();
+        UserDto user2 = UserDto.builder().name("name").email("name@mail.com").build();
+
+        UserDto userToCreate = service.createUser(user1);
+        assertThatThrownBy(() -> {
+            service.createUser(user1);
+        }).isInstanceOf(DuplicateEmail.class);
+    }*/
+
     @Test
     void testUpdateUser() {
         UserDto userToCreate = service.createUser(user);

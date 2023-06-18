@@ -11,6 +11,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
@@ -39,12 +40,12 @@ public class RequestServiceIntegrationTest {
 
     @Test
     void testCreateRequest() {
-        user = UserDto.builder().id(userId).name("name").email("name@mail.com").build();
+        user = UserDto.builder().name("name").email("name@mail.com").build();
         UserDto userToCreate = userService.createUser(user);
 
-        request = ItemRequestDto.builder().id(requestId).created(LocalDateTime.now()).requestor(userId)
+        request = ItemRequestDto.builder().id(requestId).created(LocalDateTime.now()).requestor(userToCreate.getId())
                 .description("Request 1").items(null).build();
-        ItemRequestDto requestToCreate = service.createRequest(userId, request);
+        ItemRequestDto requestToCreate = service.createRequest(userToCreate.getId(), request);
 
         TypedQuery<ItemRequest> query = em.createQuery("Select r from ItemRequest r where r.id = :id", ItemRequest.class);
         ItemRequest requestToCheck = query.setParameter("id", requestToCreate.getId()).getSingleResult();
