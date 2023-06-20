@@ -26,7 +26,7 @@ import static ru.practicum.shareit.variables.Variables.HEADER;
 @RequestMapping(path = "/requests")
 @Validated
 public class ItemRequestController {
-    public final ItemRequestService itemRequestService;
+    private final ItemRequestService itemRequestService;
 
     @PostMapping
     public ItemRequestDto createRequest(@RequestHeader(HEADER) long userId, @RequestBody ItemRequestDto itemRequestDto) {

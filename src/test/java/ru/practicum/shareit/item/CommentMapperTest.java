@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CommentMapperTest {
-    CommentMapper mapper;
+    private CommentMapper mapper;
 
     @BeforeEach
     void initTest() {

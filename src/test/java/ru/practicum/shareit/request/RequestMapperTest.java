@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RequestMapperTest {
-    ItemRequestMapper mapper;
-    ItemRequestDto requestDto;
-    ItemRequest request;
+    private ItemRequestMapper mapper;
+    private ItemRequestDto requestDto;
+    private ItemRequest request;
 
     @BeforeEach
     void initTest() {

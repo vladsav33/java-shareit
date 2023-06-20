@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
-    public final ItemRequestRepository itemRequestRepository;
-    public final UserRepository userRepository;
-    public final ItemRequestMapper itemRequestMapper;
-    public final ItemRepository itemRepository;
-    public final ItemMapper itemMapper;
+    private final ItemRequestRepository itemRequestRepository;
+    private final UserRepository userRepository;
+    private final ItemRequestMapper itemRequestMapper;
+    private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
     public ItemRequestDto createRequest(long userId, ItemRequestDto itemRequestDto) {
         if (!userRepository.existsById(userId)) {
