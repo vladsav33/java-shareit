@@ -27,24 +27,20 @@ public class RequestServiceIntegrationTest {
     private final EntityManager em;
     private final UserService userService;
     private final ItemRequestService service;
-    private UserDto user;
     private ItemRequestDto request;
-    private long userId;
-    private long requestId;
+    private UserDto userToCreate;
 
     @BeforeEach
     void initTest() {
-        userId = 1;
-        requestId = 1;
+        long requestId = 1;
+        UserDto user = UserDto.builder().name("name").email("name@mail.com").build();
+        userToCreate = userService.createUser(user);
+        request = ItemRequestDto.builder().id(requestId).created(LocalDateTime.now()).requestor(userToCreate.getId())
+                .description("Request 1").items(null).build();
     }
 
     @Test
     void testCreateRequest() {
-        user = UserDto.builder().name("name").email("name@mail.com").build();
-        UserDto userToCreate = userService.createUser(user);
-
-        request = ItemRequestDto.builder().id(requestId).created(LocalDateTime.now()).requestor(userToCreate.getId())
-                .description("Request 1").items(null).build();
         ItemRequestDto requestToCreate = service.createRequest(userToCreate.getId(), request);
 
         TypedQuery<ItemRequest> query = em.createQuery("Select r from ItemRequest r where r.id = :id", ItemRequest.class);

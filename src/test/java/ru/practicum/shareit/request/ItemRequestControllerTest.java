@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.variables.Variables.HEADER;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,6 +39,8 @@ class ItemRequestControllerTest {
     private long requestId;
     private long itemId;
     private Pageable page;
+    private ItemDto itemToCreate;
+    private ItemRequestDto requestDto;
 
     @BeforeEach
     void initTest() {
@@ -45,19 +48,19 @@ class ItemRequestControllerTest {
         requestId = 1;
         itemId = 1;
         page = PageRequest.of(0, 20);
+        itemToCreate = ItemDto.builder().id(itemId).name("Дрель аккумуляторная").description("description")
+                .available(true).owner(userId).build();
+        requestDto = ItemRequestDto.builder().id(requestId).description("Request 1").requestor(userId)
+                .items(List.of(itemToCreate)).build();
     }
 
     @Test
     @SneakyThrows
     void createRequest() {
-        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("Дрель аккумуляторная").description("description")
-                .available(true).owner(userId).build();
-        ItemRequestDto requestDto = ItemRequestDto.builder().id(requestId).description("Request 1").requestor(userId)
-                        .items(List.of(itemToCreate)).build();
         when(itemRequestService.createRequest(any(Long.class), any(ItemRequestDto.class))).thenReturn(requestDto);
 
         String response = mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -68,14 +71,10 @@ class ItemRequestControllerTest {
     @Test
     @SneakyThrows
     void getOwnRequests() {
-        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("Дрель аккумуляторная").description("description")
-                .available(true).owner(userId).build();
-        ItemRequestDto requestDto = ItemRequestDto.builder().id(requestId).description("Request 1").requestor(userId)
-                .items(List.of(itemToCreate)).build();
         when(itemRequestService.getOwnRequests(userId)).thenReturn(List.of(requestDto));
 
         String response = mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -86,14 +85,10 @@ class ItemRequestControllerTest {
     @Test
     @SneakyThrows
     void getAllRequests() {
-        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("Дрель аккумуляторная").description("description")
-                .available(true).owner(userId).build();
-        ItemRequestDto requestDto = ItemRequestDto.builder().id(requestId).description("Request 1").requestor(userId)
-                .items(List.of(itemToCreate)).build();
         when(itemRequestService.getAllRequests(userId, page)).thenReturn(List.of(requestDto));
 
         String response = mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -104,14 +99,10 @@ class ItemRequestControllerTest {
     @Test
     @SneakyThrows
     void getRequestById() {
-        ItemDto itemToCreate = ItemDto.builder().id(itemId).name("Дрель аккумуляторная").description("description")
-                .available(true).owner(userId).build();
-        ItemRequestDto requestDto = ItemRequestDto.builder().id(requestId).description("Request 1").requestor(userId)
-                .items(List.of(itemToCreate)).build();
         when(itemRequestService.getRequestById(requestId, userId)).thenReturn(requestDto);
 
         String response = mockMvc.perform(get("/requests/" + requestId)
-                        .header("X-Sharer-User-Id", userId)
+                        .header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);

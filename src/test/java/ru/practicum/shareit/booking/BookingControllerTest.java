@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.variables.Variables.HEADER;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -65,7 +66,7 @@ class BookingControllerTest {
         when(bookingService.createBooking(userId,
                 objectMapper.readValue(objectMapper.writeValueAsString(bookingToCreate), BookingDto.class))).thenReturn(bookingToCreate);
 
-        String response = mockMvc.perform(post("/bookings").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(post("/bookings").header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -101,7 +102,7 @@ class BookingControllerTest {
                 .item(item).booker(user).status(Status.APPROVED).build();
         when(bookingService.getBookingById(userId, bookingId)).thenReturn(bookingToCreate);
 
-        String response = mockMvc.perform(get("/bookings/" + bookingId).header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(get("/bookings/" + bookingId).header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -118,7 +119,7 @@ class BookingControllerTest {
                 .item(item).booker(user).status(Status.APPROVED).build();
         when(bookingService.getBookingsByUser(userId, "ALL", page)).thenReturn(List.of(bookingToCreate));
 
-        String response = mockMvc.perform(get("/bookings").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(get("/bookings").header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -135,7 +136,7 @@ class BookingControllerTest {
                 .item(item).booker(user).status(Status.APPROVED).build();
         when(bookingService.getBookingsByItemsOfUser(userId, "ALL", page)).thenReturn(List.of(bookingToCreate));
 
-        String response = mockMvc.perform(get("/bookings/owner").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(get("/bookings/owner").header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();

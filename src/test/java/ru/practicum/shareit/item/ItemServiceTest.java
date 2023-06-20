@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 class ItemServiceTest {
 
     private ItemServiceImpl itemService;
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
     private Item item;
     private ItemDto itemDto;
     private long itemId;
@@ -77,7 +77,7 @@ class ItemServiceTest {
     void createItemNoUser() {
         when(userService.checkUserExists(any(Long.class))).thenReturn(false);
         assertThatThrownBy(() -> {
-            ItemDto itemToCreate = itemService.createItem(99, itemDto);
+            itemService.createItem(99, itemDto);
         }).isInstanceOf(NoSuchUser.class).hasMessage("No such user");
     }
 
@@ -85,7 +85,7 @@ class ItemServiceTest {
     void createItemNoAvailable() {
         itemDto = ItemDto.builder().id(itemId).name("name").description("description").build();
         assertThatThrownBy(() -> {
-            ItemDto itemToCreate = itemService.createItem(userId, itemDto);
+            itemService.createItem(userId, itemDto);
         }).isInstanceOf(ValidationException.class).hasMessage("Validation error");
     }
 
@@ -106,7 +106,7 @@ class ItemServiceTest {
         item = Item.builder().id(itemId).name("name").description("description").owner(99L).build();
         when(itemRepository.findById(itemId)).thenReturn(Optional.ofNullable(item));
         assertThatThrownBy(() -> {
-            ItemDto itemToCreate = itemService.updateItem(userId, itemId, itemDto);
+            itemService.updateItem(userId, itemId, itemDto);
         }).isInstanceOf(WrongUser.class).hasMessage("Wrong user for the update");
     }
 
@@ -128,7 +128,7 @@ class ItemServiceTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.ofNullable(null));
 
         assertThatThrownBy(() -> {
-            ItemDto itemActual = itemService.getItemById(itemId, userId);
+            itemService.getItemById(itemId, userId);
         }).isInstanceOf(NoSuchItem.class).hasMessage("Item was not found");
     }
 
@@ -189,7 +189,7 @@ class ItemServiceTest {
                 .created(LocalDateTime.of(2021, 12, 1, 12, 11, 10))
                 .itemId(1).text("").author(UserMapper.INSTANCE.toUser(userDto)).build();
         assertThatThrownBy(() -> {
-            CommentDto commentToCreate = itemService.createComment(userDto.getId(), comment.getItemId(),
+            itemService.createComment(userDto.getId(), comment.getItemId(),
                     commentMapper.toCommentDto(comment));
         }).isInstanceOf(ValidationException.class).hasMessage("Text cannot be empty");
     }
@@ -202,7 +202,7 @@ class ItemServiceTest {
         when(bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(any(Long.class), any(LocalDateTime.class)))
                 .thenReturn(new ArrayList<>());
         assertThatThrownBy(() -> {
-            CommentDto commentToCreate = itemService.createComment(userDto.getId(), comment.getItemId(),
+            itemService.createComment(userDto.getId(), comment.getItemId(),
                     commentMapper.toCommentDto(comment));
         }).isInstanceOf(ValidationException.class).hasMessage("User doesn't have any bookings to write comments");
     }

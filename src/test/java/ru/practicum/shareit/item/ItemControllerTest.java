@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.variables.Variables.HEADER;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -45,7 +46,7 @@ class ItemControllerTest {
                 .available(true).build();
         when(itemService.createItem(userId, itemDtoToCreate)).thenReturn(itemToCreate);
 
-        String response = mockMvc.perform(post("/items").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(post("/items").header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDtoToCreate)))
                         .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
@@ -63,7 +64,7 @@ class ItemControllerTest {
                 .available(true).owner(userId).build();
         when(itemService.getItemsByUser(1)).thenReturn(List.of(itemToCreate));
 
-        String response = mockMvc.perform(get("/items").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(get("/items").header(HEADER, userId)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
@@ -81,7 +82,7 @@ class ItemControllerTest {
         ItemDto itemUpdate = ItemDto.builder().name("name").build();
         when(itemService.updateItem(userId, itemId, itemUpdate)).thenReturn(itemToCreate);
 
-        String response = mockMvc.perform(patch("/items/" + itemId).header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(patch("/items/" + itemId).header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemUpdate)))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -99,7 +100,7 @@ class ItemControllerTest {
                 .available(true).owner(userId).build();
         when(itemService.getItemById(1, 1)).thenReturn(itemToCreate);
 
-        String response = mockMvc.perform(get("/items/" + itemId).header("X-Sharer-User-Id", 1)
+        String response = mockMvc.perform(get("/items/" + itemId).header(HEADER, 1)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
@@ -118,7 +119,7 @@ class ItemControllerTest {
         when(itemService.searchItems(text)).thenReturn(List.of(itemToCreate));
 
         String response = mockMvc.perform(get("/items/search?text=" + text)
-                        .header("X-Sharer-User-Id", userId)
+                        .header(HEADER, userId)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
@@ -136,7 +137,7 @@ class ItemControllerTest {
 
         when(itemService.createComment(userId, itemId, commentDtoToCreate)).thenReturn(commentDtoToCreate);
 
-        String response = mockMvc.perform(post("/items/" + itemId + "/comment").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(post("/items/" + itemId + "/comment").header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(commentDtoToCreate)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();

@@ -29,20 +29,18 @@ public class BookingRepositoryTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    ItemRepository itemRepository;
-    private Item item;
+    private ItemRepository itemRepository;
     private User booker;
-    private User owner;
     private Booking booking;
     private Pageable page;
 
     @BeforeEach
     void initTest() {
         booker = User.builder().name("booker").email("booker@mail.com").build();
-        owner = User.builder().name("owner").email("owner@mail.com").build();
+        User owner = User.builder().name("owner").email("owner@mail.com").build();
         userRepository.save(booker);
         userRepository.save(owner);
-        item = Item.builder().name("name").description("description").available(true).owner(owner.getId()).build();
+        Item item = Item.builder().name("name").description("description").available(true).owner(owner.getId()).build();
         itemRepository.save(item);
         booking = Booking.builder().booker(booker)
                 .start(LocalDateTime.of(2022, 12, 20, 11, 30, 40))

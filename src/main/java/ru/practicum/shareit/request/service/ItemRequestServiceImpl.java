@@ -44,18 +44,23 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
 
         List<ItemRequestDto> requests = itemRequestRepository.findAllByRequestorIs(userId).stream()
-                .map(itemRequestMapper::toRequestDto).collect(Collectors.toList());
+                .map(itemRequestMapper::toRequestDto)
+                .collect(Collectors.toList());
         requests.forEach(itemRequestDto -> itemRequestDto.setItems(itemRepository.findItemsByRequestIdIs(itemRequestDto.getId())
-                        .stream().map(itemMapper::toItemDto).collect(Collectors.toList())));
+                        .stream().map(itemMapper::toItemDto)
+                        .collect(Collectors.toList())));
         return requests;
     }
 
     public List<ItemRequestDto> getAllRequests(long userId, Pageable page) {
 
         List<ItemRequestDto> requests = itemRequestRepository.findAllByRequestorIsNot(userId, page).stream()
-                .map(itemRequestMapper::toRequestDto).collect(Collectors.toList());
+                .map(itemRequestMapper::toRequestDto)
+                .collect(Collectors.toList());
         requests.forEach(itemRequestDto -> itemRequestDto.setItems(itemRepository.findItemsByRequestIdIs(itemRequestDto.getId())
-                .stream().map(itemMapper::toItemDto).collect(Collectors.toList())));
+                .stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList())));
         return requests;
     }
 
@@ -66,7 +71,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequestDto request = itemRequestMapper.toRequestDto(itemRequestRepository
                 .findById(requestId).orElseThrow(() -> new NoSuchRequest("This request was not found")));
         request.setItems(itemRepository.findItemsByRequestIdIs(request.getId())
-                .stream().map(itemMapper::toItemDto).collect(Collectors.toList()));
+                .stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList()));
         return request;
     }
 }

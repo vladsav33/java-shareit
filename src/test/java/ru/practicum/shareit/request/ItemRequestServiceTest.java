@@ -86,7 +86,7 @@ class ItemRequestServiceTest {
     void getRequestByIdNotFound() {
         when(requestRepository.findById(requestId)).thenReturn(Optional.ofNullable(null));
         assertThatThrownBy(() -> {
-            ItemRequestDto requests = requestService.getRequestById(requestId, userId);
+            requestService.getRequestById(requestId, userId);
         }).isInstanceOf(NoSuchRequest.class).hasMessage("This request was not found");
     }
 }

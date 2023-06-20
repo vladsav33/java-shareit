@@ -46,23 +46,11 @@ public class UserServiceIntegrationTest {
         assertThat(userToCheck.getEmail(), equalTo(userToCreate.getEmail()));
     }
 
-/*    @Test
-//    @Rollback(false)
-    void testCreateUserNonUniqueEmail() {
-        UserDto user1 = UserDto.builder().name("name").email("name@mail.com").build();
-        UserDto user2 = UserDto.builder().name("name").email("name@mail.com").build();
-
-        UserDto userToCreate = service.createUser(user1);
-        assertThatThrownBy(() -> {
-            service.createUser(user1);
-        }).isInstanceOf(DuplicateEmail.class);
-    }*/
-
     @Test
     void testUpdateUser() {
-        UserDto userToCreate = service.createUser(user);
+        service.createUser(user);
         user.setName("updated name");
-        userToCreate = service.updateUser(userId, user);
+        UserDto userToCreate = service.updateUser(userId, user);
 
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
         User userToCheck = query.setParameter("email", userToCreate.getEmail()).getSingleResult();
@@ -83,7 +71,7 @@ public class UserServiceIntegrationTest {
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
 
         assertThatThrownBy(() -> {
-            User userToCheck = query.setParameter("email", userToCreate.getEmail()).getSingleResult();
+            query.setParameter("email", userToCreate.getEmail()).getSingleResult();
         }).isInstanceOf(NoResultException.class);
     }
 }

@@ -17,6 +17,7 @@ import ru.practicum.shareit.booking.component.GetBookingsOwnerWaiting;
 import ru.practicum.shareit.booking.component.GetBookingsPast;
 import ru.practicum.shareit.booking.component.GetBookingsRejected;
 import ru.practicum.shareit.booking.component.GetBookingsWaiting;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.enums.State;
@@ -36,23 +37,19 @@ public class ComponentTest {
     private final BookingRepository bookingRepository = Mockito.mock(BookingRepository.class);
     private final BookingMapper mapper = Mappers.getMapper(BookingMapper.class);
     private Booking booking;
-    private Item item;
     private User booker;
     private long bookerId;
-    private long itemId;
-    private long ownerId;
-    private long bookingId;
     private Pageable page;
 
     @BeforeEach
     void initTest() {
         bookerId = 1;
-        itemId = 1;
-        ownerId = 1;
-        bookingId = 1;
+        long itemId = 1;
+        long ownerId = 1;
+        long bookingId = 1;
         page = PageRequest.of(0, 20);
         booker = User.builder().id(bookerId).name("booker").email("booker@mail.com").build();
-        item = Item.builder().id(itemId).name("name").description("description").owner(ownerId).available(true).build();
+        Item item = Item.builder().id(itemId).name("name").description("description").owner(ownerId).available(true).build();
         booking = Booking.builder().id(bookingId).start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
                 .booker(booker).item(item).status(Status.WAITING).build();
     }
@@ -62,10 +59,7 @@ public class ComponentTest {
         GetBookingsCurrent bookingsCurrent = new GetBookingsCurrent(bookingRepository, mapper);
         when(bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByEndDesc(any(Long.class), any(LocalDateTime.class),
                 any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsCurrent.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsCurrent.getState(), State.CURRENT);
+        assertChecks(bookingsCurrent.findBookings(booker.getId(), page), bookingsCurrent.getState(), State.CURRENT);
     }
 
     @Test
@@ -73,10 +67,7 @@ public class ComponentTest {
         GetBookingsFuture bookingsFuture = new GetBookingsFuture(bookingRepository, mapper);
         when(bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(any(Long.class),
                 any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsFuture.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsFuture.getState(), State.FUTURE);
+        assertChecks(bookingsFuture.findBookings(booker.getId(), page), bookingsFuture.getState(), State.FUTURE);
     }
 
     @Test
@@ -84,10 +75,7 @@ public class ComponentTest {
         GetBookingsPast bookingsPast = new GetBookingsPast(bookingRepository, mapper);
         when(bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(any(Long.class), any(LocalDateTime.class),
                 any(Pageable.class))).thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsPast.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsPast.getState(), State.PAST);
+        assertChecks(bookingsPast.findBookings(booker.getId(), page), bookingsPast.getState(), State.PAST);
     }
 
     @Test
@@ -95,10 +83,7 @@ public class ComponentTest {
         GetBookingsWaiting bookingsWaiting = new GetBookingsWaiting(bookingRepository, mapper);
         when(bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(bookerId, Status.WAITING, page))
                 .thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsWaiting.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsWaiting.getState(), State.WAITING);
+        assertChecks(bookingsWaiting.findBookings(booker.getId(), page), bookingsWaiting.getState(), State.WAITING);
     }
 
 
@@ -107,10 +92,7 @@ public class ComponentTest {
         GetBookingsRejected bookingsRejected = new GetBookingsRejected(bookingRepository, mapper);
         when(bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(bookerId, Status.REJECTED, page))
                 .thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsRejected.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsRejected.getState(), State.REJECTED);
+        assertChecks(bookingsRejected.findBookings(booker.getId(), page), bookingsRejected.getState(), State.REJECTED);
     }
 
     @Test
@@ -118,10 +100,7 @@ public class ComponentTest {
         GetBookingsOwnerCurrent bookingsOwnerCurrent = new GetBookingsOwnerCurrent(bookingRepository, mapper);
         when(bookingRepository.findByItemOwnerAndStartBeforeAndEndAfterOrderByStartDesc(any(Long.class), any(LocalDateTime.class),
                 any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsOwnerCurrent.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsOwnerCurrent.getState(), State.CURRENT);
+        assertChecks(bookingsOwnerCurrent.findBookings(booker.getId(), page), bookingsOwnerCurrent.getState(), State.CURRENT);
     }
 
     @Test
@@ -129,10 +108,7 @@ public class ComponentTest {
         GetBookingsOwnerPast bookingsOwnerPast = new GetBookingsOwnerPast(bookingRepository, mapper);
         when(bookingRepository.findByItemOwnerAndEndBeforeOrderByStartDesc(any(Long.class), any(LocalDateTime.class),
                 any(Pageable.class))).thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsOwnerPast.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsOwnerPast.getState(), State.PAST);
+        assertChecks(bookingsOwnerPast.findBookings(booker.getId(), page), bookingsOwnerPast.getState(), State.PAST);
     }
 
     @Test
@@ -140,10 +116,7 @@ public class ComponentTest {
         GetBookingsOwnerFuture bookingsOwnerFuture = new GetBookingsOwnerFuture(bookingRepository, mapper);
         when(bookingRepository.findByItemOwnerAndStartAfterOrderByStartDesc(any(Long.class), any(LocalDateTime.class),
                 any(Pageable.class))).thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsOwnerFuture.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsOwnerFuture.getState(), State.FUTURE);
+        assertChecks(bookingsOwnerFuture.findBookings(booker.getId(), page), bookingsOwnerFuture.getState(), State.FUTURE);
     }
 
     @Test
@@ -151,10 +124,7 @@ public class ComponentTest {
         GetBookingsOwnerWaiting bookingsOwnerWaiting = new GetBookingsOwnerWaiting(bookingRepository, mapper);
         when(bookingRepository.findByItemOwnerAndStatusIsOrderByStartDesc(bookerId, Status.WAITING, page))
                 .thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsOwnerWaiting.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsOwnerWaiting.getState(), State.WAITING);
+        assertChecks(bookingsOwnerWaiting.findBookings(booker.getId(), page), bookingsOwnerWaiting.getState(), State.WAITING);
     }
 
     @Test
@@ -162,11 +132,14 @@ public class ComponentTest {
         GetBookingsOwnerRejected bookingsOwnerRejected = new GetBookingsOwnerRejected(bookingRepository, mapper);
         when(bookingRepository.findByItemOwnerAndStatusIsOrderByStartDesc(bookerId, Status.REJECTED, page))
                 .thenReturn(List.of(booking));
-        List<Booking> bookings = bookingsOwnerRejected.findBookings(booker.getId(), page).stream()
-                .map(mapper::toBooking).collect(Collectors.toList());
-        assertEquals(bookings.get(0).getId(), booking.getId());
-        assertEquals(bookingsOwnerRejected.getState(), State.REJECTED);
+        assertChecks(bookingsOwnerRejected.findBookings(booker.getId(), page), bookingsOwnerRejected.getState(), State.REJECTED);
     }
 
-
+    private void assertChecks(List<BookingDto> bookingList, State stateReceive, State stateCheck) {
+        List<Booking> bookings = bookingList.stream()
+                .map(mapper::toBooking)
+                .collect(Collectors.toList());
+        assertEquals(bookings.get(0).getId(), booking.getId());
+        assertEquals(stateReceive, stateCheck);
+    }
 }

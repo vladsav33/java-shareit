@@ -3,14 +3,20 @@ package ru.practicum.shareit.request.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+import static ru.practicum.shareit.variables.Variables.DATE_FORMAT;
+
+@EqualsAndHashCode
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -18,7 +24,7 @@ public class ItemRequestDto {
     private long id;
     private String description;
     private long requestor;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime created;
     private List<ItemDto> items;
 }

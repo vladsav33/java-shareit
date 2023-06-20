@@ -51,13 +51,6 @@ public class ErrorHandler {
         return Map.of("Object not available", "This item is not available");
     }
 
-/*    @ExceptionHandler(DuplicateEmail.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDuplicateEmail(final DuplicateEmail exception) {
-        log.warn(exception.getMessage());
-        return Map.of("Duplicate email", "email already exists");
-    }*/
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleWrongUser(final WrongUser exception) {

@@ -34,18 +34,16 @@ public class BookingServiceIntegrationTest {
     private final ItemService itemService;
     private final BookingService service;
     private UserDto booker;
-    private UserDto owner;
-    private ItemDto item;
     private BookingDto booking;
 
     @BeforeEach
     void initTest() {
-        owner = UserDto.builder().name("owner").email("owner@mail.com").build();
+        UserDto owner = UserDto.builder().name("owner").email("owner@mail.com").build();
         booker = UserDto.builder().name("booker").email("booker@mail.com").build();
         owner = userService.createUser(owner);
         booker = userService.createUser(booker);
 
-        item = ItemDto.builder().name("name").description("description").owner(owner.getId()).available(true).build();
+        ItemDto item = ItemDto.builder().name("name").description("description").owner(owner.getId()).available(true).build();
         item = itemService.createItem(owner.getId(), item);
 
         booking = BookingDto.builder().start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
@@ -59,12 +57,7 @@ public class BookingServiceIntegrationTest {
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.id = :id", Booking.class);
         Booking bookingToCheck = query.setParameter("id", booking.getId()).getSingleResult();
 
-        assertThat(bookingToCheck.getId(), notNullValue());
-        assertThat(bookingToCheck.getStart(), equalTo(booking.getStart()));
-        assertThat(bookingToCheck.getEnd(), equalTo(booking.getEnd()));
-        assertThat(UserMapper.INSTANCE.toUserDto(bookingToCheck.getBooker()), equalTo(booking.getBooker()));
-        assertThat(bookingToCheck.getStatus(), equalTo(booking.getStatus()));
-        assertThat(ItemMapper.INSTANCE.toItemDto(bookingToCheck.getItem()), equalTo(booking.getItem()));
+        assertChecks(bookingToCheck);
     }
 
     @Test
@@ -76,6 +69,10 @@ public class BookingServiceIntegrationTest {
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.id = :id", Booking.class);
         Booking bookingToCheck = query.setParameter("id", booking.getId()).getSingleResult();
 
+        assertChecks(bookingToCheck);
+    }
+
+    private void assertChecks(Booking bookingToCheck) {
         assertThat(bookingToCheck.getId(), notNullValue());
         assertThat(bookingToCheck.getStart(), equalTo(booking.getStart()));
         assertThat(bookingToCheck.getEnd(), equalTo(booking.getEnd()));

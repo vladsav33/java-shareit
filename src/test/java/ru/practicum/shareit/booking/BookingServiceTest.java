@@ -44,13 +44,9 @@ class BookingServiceTest {
     private long bookingId;
     private long ownerId;
     private long bookerId;
-    private long itemId;
     private BookingDto bookingDto;
     private Booking booking;
-    private UserDto ownerDto;
     private User booker;
-    private UserDto bookerDto;
-    private ItemDto itemDto;
     private Item item;
     private BookingDto bookingToCreate;
     private final BookingMapper mapper = Mappers.getMapper(BookingMapper.class);
@@ -61,10 +57,10 @@ class BookingServiceTest {
         bookingId = 1;
         ownerId = 1;
         bookerId = 2;
-        itemId = 1;
-        ownerDto = UserDto.builder().id(ownerId).name("owner").email("owner@mail.com").build();
-        bookerDto = UserDto.builder().id(bookerId).name("booker").email("booker@mail.com").build();
-        itemDto = ItemDto.builder().id(itemId).name("name").description("description").owner(ownerId).available(true).build();
+        long itemId = 1;
+        UserDto ownerDto = UserDto.builder().id(ownerId).name("owner").email("owner@mail.com").build();
+        UserDto bookerDto = UserDto.builder().id(bookerId).name("booker").email("booker@mail.com").build();
+        ItemDto itemDto = ItemDto.builder().id(itemId).name("name").description("description").owner(ownerId).available(true).build();
         booker = User.builder().id(bookerId).name("booker").email("booker@mail.com").build();
         item = Item.builder().id(itemId).name("name").description("description").owner(ownerId).available(true).build();
         bookingDto = BookingDto.builder().id(bookingId).start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
@@ -76,10 +72,7 @@ class BookingServiceTest {
 
     @Test
     void createBookingValid() {
-        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
-        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        whenReturn();
         bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
         assertEquals(bookingToCreate, bookingDto);
     }
@@ -114,10 +107,7 @@ class BookingServiceTest {
 
     @Test
     void updateBooking() {
-        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
-        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        whenReturn();
         bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(mapper.toBooking(bookingToCreate)));
         BookingDto bookingToUpdate = bookingService.updateBooking(ownerId, bookingId, true);
@@ -130,7 +120,7 @@ class BookingServiceTest {
         bookingDto.getItem().setOwner(99L);
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(mapper.toBooking(bookingDto)));
         assertThatThrownBy(() -> {
-            BookingDto bookingToUpdate = bookingService.updateBooking(ownerId, bookingId, true);
+            bookingService.updateBooking(ownerId, bookingId, true);
         }).isInstanceOf(WrongUser.class).hasMessage("User is not an owner of this item for this booking");
     }
 
@@ -139,16 +129,13 @@ class BookingServiceTest {
         bookingDto.setStatus(Status.APPROVED);
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(mapper.toBooking(bookingDto)));
         assertThatThrownBy(() -> {
-            BookingDto bookingToUpdate = bookingService.updateBooking(ownerId, bookingId, true);
+            bookingService.updateBooking(ownerId, bookingId, true);
         }).isInstanceOf(AlreadyApproved.class).hasMessage("This booking was already approved");
     }
 
     @Test
     void getBookingByIdValid() {
-        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
-        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        whenReturn();
         bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(mapper.toBooking(bookingToCreate)));
         BookingDto bookingToGet = bookingService.getBookingById(bookerId, bookingId);
@@ -161,7 +148,7 @@ class BookingServiceTest {
         when(bookingRepository.findByBookerIdOrderByStartDesc(bookerId, page))
                 .thenReturn(new ArrayList<>());
         assertThatThrownBy(() -> {
-            List<BookingDto> bookingsToGet = bookingService.getBookingsByUser(bookerId, "ALL", page);
+            bookingService.getBookingsByUser(bookerId, "ALL", page);
         }).isInstanceOf(NoSuchBooking.class).hasMessage("Bookings were not found");
     }
 
@@ -170,16 +157,13 @@ class BookingServiceTest {
         when(bookingRepository.findByBookerIdOrderByStartDesc(bookerId, page))
                 .thenReturn(new ArrayList<>());
         assertThatThrownBy(() -> {
-            List<BookingDto> bookingsToGet = bookingService.getBookingsByUser(bookerId, "UNKNOWN", page);
+            bookingService.getBookingsByUser(bookerId, "UNKNOWN", page);
         }).isInstanceOf(UnknownState.class).hasMessage("UNSUPPORTED_STATUS");
     }
 
     @Test
     void getBookingsByUserValid() {
-        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
-        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        whenReturn();
         bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
         when(bookingRepository.findByBookerIdOrderByStartDesc(bookerId, page))
                 .thenReturn(List.of(mapper.toBooking(bookingToCreate)));
@@ -189,14 +173,18 @@ class BookingServiceTest {
 
     @Test
     void getBookingsByItemsOfUser() {
-        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
-        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        whenReturn();
         bookingToCreate = bookingService.createBooking(bookerId, bookingDto);
         when(bookingRepository.findByItemOwnerOrderByStartDesc(ownerId, page))
                 .thenReturn(List.of(mapper.toBooking(bookingToCreate)));
         List<BookingDto> bookingToGet = bookingService.getBookingsByItemsOfUser(ownerId, "ALL", page);
         assertEquals(bookingToGet, List.of(bookingDto));
+    }
+
+    private void whenReturn() {
+        when(itemService.isItemAvailable(any(Long.class))).thenReturn(true);
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(booker));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
     }
 }
