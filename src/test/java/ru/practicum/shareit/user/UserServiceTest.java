@@ -3,12 +3,17 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import ru.practicum.shareit.exceptions.NoSuchUser;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.service.UserServiceImpl;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -17,8 +22,8 @@ class UserServiceTest {
     private UserDto userDto;
     private UserDto user;
     private final long userId = 1L;
-    private UserRepository userRepository = Mockito.mock(UserRepository.class);
-    private UserServiceImpl userService = new UserServiceImpl(UserMapper.INSTANCE, userRepository);
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
+    private final UserServiceImpl userService = new UserServiceImpl(UserMapper.INSTANCE, userRepository);
 
     @BeforeEach
     void initTest() {
@@ -49,8 +54,8 @@ class UserServiceTest {
     @Test
     void testDeleteUser() {
         when(userRepository.save(UserMapper.INSTANCE.toUser(userDto))).thenReturn(UserMapper.INSTANCE.toUser(userDto));
-        when(userRepository.findAll()).thenReturn(List.of(userDto).stream()
-                .map(userDto -> UserMapper.INSTANCE.toUser(userDto)).collect(Collectors.toList()));
+        when(userRepository.findAll()).thenReturn(Stream.of(userDto)
+                .map(UserMapper.INSTANCE::toUser).collect(Collectors.toList()));
         doNothing().when(userRepository).deleteById(userId);
 
         user = userService.createUser(userDto);
@@ -72,10 +77,18 @@ class UserServiceTest {
     }
 
     @Test
+    void getUserNotFound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(null));
+        assertThatThrownBy(() -> {
+            UserDto userActual = userService.getUser(userId);
+        }).isInstanceOf(NoSuchUser.class).hasMessage("User was not found");
+    }
+
+    @Test
     void getAllUsers() {
         when(userRepository.save(UserMapper.INSTANCE.toUser(userDto))).thenReturn(UserMapper.INSTANCE.toUser(userDto));
-        when(userRepository.findAll()).thenReturn(List.of(userDto).stream()
-                .map(userDto -> UserMapper.INSTANCE.toUser(userDto)).collect(Collectors.toList()));
+        when(userRepository.findAll()).thenReturn(Stream.of(userDto)
+                .map(UserMapper.INSTANCE::toUser).collect(Collectors.toList()));
 
         user = userService.createUser(userDto);
         List<UserDto> usersActual = userService.getAllUsers();

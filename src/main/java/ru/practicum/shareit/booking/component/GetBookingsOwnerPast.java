@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.component;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.BookingMapper;
@@ -14,8 +15,8 @@ public class GetBookingsOwnerPast extends Chain {
         super(bookingRepository, bookingMapper);
     }
 
-    public List<BookingDto> findBookings(long userId) {
-        return bookingRepository.findByItemOwnerAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now()).stream()
+    public List<BookingDto> findBookings(long userId, Pageable page) {
+        return bookingRepository.findByItemOwnerAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page).stream()
             .map(bookingMapper::toBookingDto).collect(Collectors.toList());
     }
 

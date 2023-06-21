@@ -8,10 +8,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.variables.Variables.HEADER;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,7 +46,7 @@ class ItemControllerTest {
                 .available(true).build();
         when(itemService.createItem(userId, itemDtoToCreate)).thenReturn(itemToCreate);
 
-        String response = mockMvc.perform(post("/items").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(post("/items").header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDtoToCreate)))
                         .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
@@ -59,7 +64,7 @@ class ItemControllerTest {
                 .available(true).owner(userId).build();
         when(itemService.getItemsByUser(1)).thenReturn(List.of(itemToCreate));
 
-        String response = mockMvc.perform(get("/items").header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(get("/items").header(HEADER, userId)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
@@ -77,7 +82,7 @@ class ItemControllerTest {
         ItemDto itemUpdate = ItemDto.builder().name("name").build();
         when(itemService.updateItem(userId, itemId, itemUpdate)).thenReturn(itemToCreate);
 
-        String response = mockMvc.perform(patch("/items/" + itemId).header("X-Sharer-User-Id", userId)
+        String response = mockMvc.perform(patch("/items/" + itemId).header(HEADER, userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemUpdate)))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -95,7 +100,7 @@ class ItemControllerTest {
                 .available(true).owner(userId).build();
         when(itemService.getItemById(1, 1)).thenReturn(itemToCreate);
 
-        String response = mockMvc.perform(get("/items/" + itemId).header("X-Sharer-User-Id", 1)
+        String response = mockMvc.perform(get("/items/" + itemId).header(HEADER, 1)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
@@ -114,11 +119,30 @@ class ItemControllerTest {
         when(itemService.searchItems(text)).thenReturn(List.of(itemToCreate));
 
         String response = mockMvc.perform(get("/items/search?text=" + text)
-                        .header("X-Sharer-User-Id", userId)
+                        .header(HEADER, userId)
                         .contentType("application/json"))
                         .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         verify(itemService).searchItems("Дрель");
         assertEquals(objectMapper.writeValueAsString(List.of(itemToCreate)), response);
+    }
+
+    @Test
+    @SneakyThrows
+    void testCreateComment() {
+        long itemId = 1;
+        long userId = 1;
+        CommentDto commentDtoToCreate = CommentDto.builder().id(1).authorId(userId).authorName("User 1").itemId(itemId)
+                        .text("Comment 1").created(LocalDateTime.now()).build();
+
+        when(itemService.createComment(userId, itemId, commentDtoToCreate)).thenReturn(commentDtoToCreate);
+
+        String response = mockMvc.perform(post("/items/" + itemId + "/comment").header(HEADER, userId)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(commentDtoToCreate)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        verify(itemService).createComment(userId, itemId, commentDtoToCreate);
+        assertEquals(objectMapper.writeValueAsString(commentDtoToCreate), response);
     }
 }
