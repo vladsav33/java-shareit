@@ -2,6 +2,7 @@
   <configuration default="false" name="ShareItGateway" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="ru.practicum.shareit.ShareItGateway" />
     <module name="shareit-gateway" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/gateway" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="ru.practicum.shareit.*" />
