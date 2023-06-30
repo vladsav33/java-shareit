@@ -60,13 +60,6 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleUnknownState(final UnknownState exception) {
-        log.warn(exception.getMessage());
-        return Map.of("error", "Unknown state: UNSUPPORTED_STATUS");
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleAlreadyApproved(final AlreadyApproved exception) {
         log.warn(exception.getMessage());
         return Map.of("The booking was already approved", exception.getMessage());

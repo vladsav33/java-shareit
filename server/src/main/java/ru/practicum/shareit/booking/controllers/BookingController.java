@@ -25,7 +25,6 @@ import static ru.practicum.shareit.variables.Variables.HEADER;
 @RestController
 @RequestMapping(path = "/bookings")
 @AllArgsConstructor
-@Validated
 public class BookingController {
     public final BookingService bookingService;
 
@@ -49,9 +48,9 @@ public class BookingController {
     @GetMapping()
     @ResponseBody
     public List<BookingDto> getBookingsByUser(@RequestHeader(HEADER) long userId,
-                                              @RequestParam(defaultValue = "ALL") String state,
-                                              @RequestParam(defaultValue = "0")  @Min(0) int from,
-                                              @RequestParam (defaultValue = "20") @Min(1) int size) {
+                                              @RequestParam String state,
+                                              @RequestParam int from,
+                                              @RequestParam int size) {
         Pageable page = PageRequest.of(from / size, size);
         return bookingService.getBookingsByUser(userId, state, page);
     }
@@ -59,9 +58,9 @@ public class BookingController {
     @GetMapping("/owner")
     @ResponseBody
     public List<BookingDto> getBookingsByItemsOfUser(@RequestHeader(HEADER) long userId,
-                                                     @RequestParam(defaultValue = "ALL") String state,
-                                                     @RequestParam(defaultValue = "0")  @Min(0) int from,
-                                                     @RequestParam (defaultValue = "20") @Min(1) int size) {
+                                                     @RequestParam String state,
+                                                     @RequestParam int from,
+                                                     @RequestParam int size) {
         Pageable page = PageRequest.of(from / size, size);
         return bookingService.getBookingsByItemsOfUser(userId, state, page);
     }

@@ -110,12 +110,14 @@ public class ItemServiceImpl implements ItemService {
         }
         List<Booking> bookings = bookingRepository.findFirstByItemIdAndStartBeforeAndStatusIsNotOrderByEndDesc(itemId,
                 LocalDateTime.now(), Status.REJECTED);
+        log.info("Found {} last bookings at {}", bookings.size(), LocalDateTime.now());
         if (!bookings.isEmpty()) {
             LastNextBookingDto bookingDto = getLastNextBookingDto(bookings);
             itemDto.setLastBooking(bookingDto);
         }
         bookings = bookingRepository.findFirstByItemIdAndStartAfterAndStatusIsNotOrderByEndAsc(itemId,
                 LocalDateTime.now(), Status.REJECTED);
+        log.info("Found {} next bookings at {}", bookings.size(), LocalDateTime.now());
         if (!bookings.isEmpty()) {
             LastNextBookingDto bookingDto = getLastNextBookingDto(bookings);
             itemDto.setNextBooking(bookingDto);

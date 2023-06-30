@@ -24,7 +24,6 @@ import static ru.practicum.shareit.variables.Variables.HEADER;
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/requests")
-@Validated
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
@@ -42,8 +41,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequests(@RequestHeader(HEADER) long userId,
-                                               @RequestParam(defaultValue = "0")  @Min(0) int from,
-                                               @RequestParam (defaultValue = "20") @Min(1) int size) {
+                                               @RequestParam int from,
+                                               @RequestParam int size) {
         Pageable page = PageRequest.of(from / size, size);
         return itemRequestService.getAllRequests(userId, page);
     }

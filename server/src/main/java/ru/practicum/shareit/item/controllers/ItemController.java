@@ -30,7 +30,7 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDto createItem(@RequestHeader(HEADER) long userId, @RequestBody @Valid ItemDto itemDto) {
+    public ItemDto createItem(@RequestHeader(HEADER) long userId, @RequestBody ItemDto itemDto) {
         return itemService.createItem(userId, itemDto);
     }
 
