@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.bytebuddy.build.HashCodeAndEqualsPlugin;
 
 import java.time.LocalDateTime;
 
