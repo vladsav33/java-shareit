@@ -37,15 +37,12 @@ class UserControllerTest {
     @InjectMocks
     private UserController controller;
     private long userId;
-    private long itemId;
-    private long bookingId;
     private UserDto userDto;
     private ResponseEntity<Object> entity;
 
     @BeforeEach
     void initTest() {
         userId = 1;
-        long itemId = 1;
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
         userDto = UserDto.builder().id(1L).name("name").email("user@user.com").build();
         entity = new ResponseEntity<>(userDto, HttpStatus.OK);

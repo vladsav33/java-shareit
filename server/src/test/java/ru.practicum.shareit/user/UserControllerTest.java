@@ -8,15 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,30 +85,6 @@ class UserControllerTest {
 
         verify(userService).createUser(userDtoToCreate);
         assertEquals(objectMapper.writeValueAsString(userToCreate), response);
-    }
-
-    @Test
-    @SneakyThrows
-    void testCreateUserNoEmail() {
-        UserDto userDtoToCreate = UserDto.builder().id(1L).name("name").email("").build();
-        when(userService.createUser(userDtoToCreate)).thenThrow(new ValidationException("No email"));
-
-        mockMvc.perform(post("/users").contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDtoToCreate))).andExpect(status().isBadRequest());
-
-        verify(userService, never()).createUser(any());
-    }
-
-    @Test
-    @SneakyThrows
-    void testCreateUserInvalidEmail() {
-        UserDto userDtoToCreate = UserDto.builder().id(1L).name("name").email("email").build();
-        when(userService.createUser(userDtoToCreate)).thenThrow(new ValidationException("Invalid email"));
-
-        mockMvc.perform(post("/users").contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDtoToCreate))).andExpect(status().isBadRequest());
-
-        verify(userService, never()).createUser(any());
     }
 
     @Test

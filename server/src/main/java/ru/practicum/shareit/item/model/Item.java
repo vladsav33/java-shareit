@@ -12,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @Getter
@@ -28,7 +27,6 @@ public class Item {
     private String name;
     private String description;
     @Column(name = "is_available")
-    @NotNull
     private Boolean available;
     @Column(name = "owner_id")
     private Long owner;
